@@ -39,7 +39,7 @@ namespace HttpTracer
 				requestContent = await GetRequestContent(request);
 			}
 
-			var httpLogString = $@"==================== HTTP REQUEST [ {request?.Method} ]====================
+			var httpLogString = $@"==================== HTTP REQUEST: [ {request?.Method} ]====================
 								{request?.RequestUri}
 								Headers:
 								{{
@@ -71,9 +71,9 @@ namespace HttpTracer
 
 		private void LogHttpException(HttpRequestMessage request, Exception ex)
 		{
-			var httpExceptionString = $@"==================== HTTP EXCEPTION [ {request.Method} ]====================
-										[{request.Method}] {request.RequestUri}
-										{ex}";
+			var httpExceptionString = $@"==================== HTTP EXCEPTION: [ {request.Method} ]====================
+									  [{request.Method}] {request.RequestUri}
+									  {ex}";
 			_loggerFacade.Log(httpExceptionString);
 		}
 
