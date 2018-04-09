@@ -10,8 +10,8 @@ Http Tracer is a .NET Standard 2.0 library.
 |Xamarin.iOS|iOS 7+|
 |Xamarin.Android|API 14+|
 |Windows 10 UWP|10.0.16299+|
-~~|.NET Core|2.0+|~~
-~~|ASP.NET Core|2.0+|~~
+|~~.NET Core~~|~~2.0+~~|
+|~~ASP.NET Core~~|~~2.0+~~|
 |.NET|4.6.1+|
 
 ### License
