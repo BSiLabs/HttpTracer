@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <Authors>Dylan Berry; Daniel Causer</Authors>
+    <Company>Toronto Mobile .NET Developers Group</Company>
+    <Product>HttpTracer (netstandard2.0)</Product>
+    <PackageTags>xamarin, windows, ios, android, cache, http</PackageTags>
+    <RepositoryUrl>https://github.com/TorontoMobileDevelopers/HttpTracer</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/TorontoMobileDevelopers/HttpTracer</PackageProjectUrl>
+    <PackageLicenseUrl>https://github.com/TorontoMobileDevelopers/HttpTracer/blob/master/LICENSE</PackageLicenseUrl>
+    <Description>A simple http tracing library to write request and response information to your output window. Making your life easier when debugging http calls!</Description>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+  </PropertyGroup>
+
+</Project>
