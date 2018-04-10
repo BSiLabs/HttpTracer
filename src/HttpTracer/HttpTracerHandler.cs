@@ -1,14 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Globalization;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace HttpTracer
 {
-
     public class HttpHandlerBuilder
     {
         private HttpTracerHandler _ourHandler = new HttpTracerHandler();
@@ -35,7 +33,12 @@ namespace HttpTracer
 
 	public class HttpTracerHandler : DelegatingHandler
 	{
-		private readonly DebugLogger _loggerFacade = new DebugLogger();
+		private readonly ILogger _logger = new DebugLogger();
+
+	    public HttpTracerHandler(ILogger logger):this()
+	    {
+	        _logger = logger;
+	    }
 
 	    public HttpTracerHandler()
 	    {
@@ -79,7 +82,7 @@ Headers:
 HttpRequest.Content: 
 {requestContent}";
 
-			_loggerFacade.Log(httpLogString);
+			_logger.Log(httpLogString);
 		}
 
 		private async Task LogHttpResponse(HttpResponseMessage response)
@@ -97,7 +100,7 @@ HttpRequest.Content:
 HttpResponse: {response}
 HttpResponse.Content: {responseContent}";
 
-			_loggerFacade.Log(httpLogString);
+			_logger.Log(httpLogString);
 		}
 
 		private void LogHttpException(HttpRequestMessage request, Exception ex)
@@ -105,7 +108,7 @@ HttpResponse.Content: {responseContent}";
 			var httpExceptionString = $@"==================== HTTP EXCEPTION: [ {request.Method} ]====================
 [{request.Method}] {request.RequestUri}
 {ex}";
-			_loggerFacade.Log(httpExceptionString);
+			_logger.Log(httpExceptionString);
 		}
 
 		private static async Task<string> GetResponseContent(HttpResponseMessage response)
@@ -118,7 +121,12 @@ HttpResponse.Content: {responseContent}";
 		}
 	}
 
-	public class DebugLogger
+    public interface ILogger
+    {
+        void Log(string message);
+    }
+
+	public class DebugLogger : ILogger
 	{
 		public void Log(string message)
 		{
