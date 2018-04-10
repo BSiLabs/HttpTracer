@@ -37,6 +37,11 @@ namespace HttpTracer
 	{
 		private readonly DebugLogger _loggerFacade = new DebugLogger();
 
+	    public HttpTracerHandler()
+	    {
+            InnerHandler = new HttpClientHandler();
+        }
+
 	    protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
 	    {
 	        await LogHttpRequest(request);
