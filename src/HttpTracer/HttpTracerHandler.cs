@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Net.Http;
@@ -7,29 +8,54 @@ using System.Threading.Tasks;
 
 namespace HttpTracer
 {
+
+    public class HttpHandlerBuilder
+    {
+        private HttpTracerHandler _ourHandler = new HttpTracerHandler();
+
+        private IList<DelegatingHandler> _otherHandlersList = new List<DelegatingHandler>();
+
+        public HttpHandlerBuilder Add(DelegatingHandler handler)
+        {
+            _otherHandlersList.Add(handler);
+            return this;
+        }
+
+        public void Build()
+        {
+            //receive parameters from client
+
+            //create the chain of 
+            foreach (var otherHandler in _otherHandlersList)
+            {
+                //when 
+            }
+        }
+    }
+
 	public class HttpTracerHandler : DelegatingHandler
 	{
 		private readonly DebugLogger _loggerFacade = new DebugLogger();
 
-		protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
-		{
-			await LogHttpRequest(request);
+	    protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+	    {
+	        await LogHttpRequest(request);
 
-			HttpResponseMessage response;
-			try
-			{
-				response = await base.SendAsync(request, cancellationToken).ConfigureAwait(false);
-			}
-			catch (Exception ex)
-			{
-				LogHttpException(request, ex);
-				throw;
-			}
+            HttpResponseMessage response;
+            try
+            {
+                response = await base.SendAsync(request, cancellationToken).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                LogHttpException(request, ex);
+                throw;
+            }
 
-			await LogHttpResponse(response);
+            await LogHttpResponse(response);
 
-			return response;
-		}
+            return response;
+	    }
 
 		private async Task LogHttpRequest(HttpRequestMessage request)
 		{
@@ -40,13 +66,13 @@ namespace HttpTracer
 			}
 
 			var httpLogString = $@"==================== HTTP REQUEST: [ {request?.Method} ]====================
-								{request?.RequestUri}
-								Headers:
-								{{
-								{request?.Headers.ToString().TrimEnd()}
-								}}
-								HttpRequest.Content: 
-								{requestContent}";
+{request?.RequestUri}
+Headers:
+{{
+{request?.Headers.ToString().TrimEnd()}
+}}
+HttpRequest.Content: 
+{requestContent}";
 
 			_loggerFacade.Log(httpLogString);
 		}
@@ -62,9 +88,9 @@ namespace HttpTracer
 			var responseResult = response?.IsSuccessStatusCode ?? false ? "SUCCEEDED" : "FAILED";
 
 			var httpLogString = $@"==================== HTTP RESPONSE: [{responseResult}] ====================
-								[{response?.RequestMessage?.Method}] {response?.RequestMessage?.RequestUri}
-								HttpResponse: {response}
-								HttpResponse.Content: {responseContent}";
+[{response?.RequestMessage?.Method}] {response?.RequestMessage?.RequestUri}
+HttpResponse: {response}
+HttpResponse.Content: {responseContent}";
 
 			_loggerFacade.Log(httpLogString);
 		}
@@ -72,8 +98,8 @@ namespace HttpTracer
 		private void LogHttpException(HttpRequestMessage request, Exception ex)
 		{
 			var httpExceptionString = $@"==================== HTTP EXCEPTION: [ {request.Method} ]====================
-									  [{request.Method}] {request.RequestUri}
-									  {ex}";
+[{request.Method}] {request.RequestUri}
+{ex}";
 			_loggerFacade.Log(httpExceptionString);
 		}
 
@@ -91,9 +117,7 @@ namespace HttpTracer
 	{
 		public void Log(string message)
 		{
-			var messageToLog = string.Format(CultureInfo.InvariantCulture, DateTime.Now.ToString(CultureInfo.InvariantCulture), message);
-
-			Debug.WriteLine(messageToLog);
+			Debug.WriteLine(message);
 		}
 	}
 }

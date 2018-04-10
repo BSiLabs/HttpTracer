@@ -9,4 +9,8 @@
     <PackageReference Include="Prism.Autofac.Forms" Version="7.0.0.396" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\HttpTracer\HttpTracer.csproj" />
+  </ItemGroup>
+
 </Project>

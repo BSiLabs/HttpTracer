@@ -3,7 +3,11 @@ using Prism.Mvvm;
 using Prism.Navigation;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Net.Http;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace HttpTracer.TestApp.ViewModels
 {
@@ -30,17 +34,17 @@ namespace HttpTracer.TestApp.ViewModels
 
         public virtual void OnNavigatedTo(NavigationParameters parameters)
         {
-            
+
         }
 
-        public virtual void OnNavigatingTo(NavigationParameters parameters)
+        public void Destroy()
         {
-            
+
         }
 
-        public virtual void Destroy()
+        public void OnNavigatingTo(NavigationParameters parameters)
         {
-            
+
         }
     }
 }
