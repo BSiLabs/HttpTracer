@@ -72,20 +72,17 @@ namespace HttpTracer
         {
             await LogHttpRequest(request).ConfigureAwait(false);
 
-            HttpResponseMessage response;
             try
             {
-                response = await base.SendAsync(request, cancellationToken).ConfigureAwait(false);
+                var response = await base.SendAsync(request, cancellationToken).ConfigureAwait(false);
+                await LogHttpResponse(response).ConfigureAwait(false);
+                return response;
             }
             catch (Exception ex)
             {
                 LogHttpException(request, ex);
                 throw;
             }
-
-            await LogHttpResponse(response).ConfigureAwait(false);
-
-            return response;
         }
 
         private static Task<string> GetRequestContent(HttpRequestMessage request)
