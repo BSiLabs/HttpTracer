@@ -9,9 +9,8 @@ namespace HttpTracer
 {
     public class HttpHandlerBuilder
     {
+        private readonly IList<DelegatingHandler> _otherHandlersList = new List<DelegatingHandler>();
         private HttpTracerHandler _ourHandler = new HttpTracerHandler();
-
-        private IList<DelegatingHandler> _otherHandlersList = new List<DelegatingHandler>();
 
         public HttpHandlerBuilder Add(DelegatingHandler handler)
         {
@@ -31,23 +30,47 @@ namespace HttpTracer
         }
     }
 
-	public class HttpTracerHandler : DelegatingHandler
-	{
-		private readonly ILogger _logger = new DebugLogger();
+    public class HttpTracerHandler : DelegatingHandler
+    {
+        private readonly ILogger _logger;
 
-	    public HttpTracerHandler(ILogger logger):this()
-	    {
-	        _logger = logger;
-	    }
-
-	    public HttpTracerHandler()
-	    {
-            InnerHandler = new HttpClientHandler();
+        /// <summary>
+        /// Constructs the <see cref="HttpTracerHandler"/> with a custom <see cref="HttpMessageHandler"/> and the default <see cref="DebugLogger"/>
+        /// </summary>
+        /// <param name="handler">User defined <see cref="HttpMessageHandler"/></param>
+        public HttpTracerHandler(HttpMessageHandler handler) : this(handler, new DebugLogger())
+        {
         }
 
-	    protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
-	    {
-	        await LogHttpRequest(request);
+        /// <summary>
+        /// Constructs the <see cref="HttpTracerHandler"/> with a custom <see cref="ILogger"/> and the default <see cref="HttpClientHandler"/>
+        /// </summary>
+        /// <param name="logger">User defined <see cref="ILogger"/></param>
+        public HttpTracerHandler(ILogger logger) : this(new HttpClientHandler(), logger)
+        {
+        }
+
+        /// <summary>
+        /// Constructs the <see cref="HttpTracerHandler"/> with the default <see cref="HttpClientHandler"/> and the default <see cref="DebugLogger"/>
+        /// </summary>
+        public HttpTracerHandler() : this(new HttpClientHandler(), new DebugLogger())
+        {
+        }
+        
+        /// <summary>
+        /// Constructs the <see cref="HttpTracerHandler"/> with a custom <see cref="ILogger"/> and a custom <see cref="HttpMessageHandler"/>
+        /// </summary>
+        /// <param name="handler">User defined <see cref="HttpMessageHandler"/></param>
+        /// <param name="logger">User defined <see cref="ILogger"/></param>
+        public HttpTracerHandler(HttpMessageHandler handler, ILogger logger)
+        {
+            InnerHandler = handler;
+            _logger = logger;
+        }
+
+        protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+        {
+            await LogHttpRequest(request).ConfigureAwait(false);
 
             HttpResponseMessage response;
             try
@@ -60,20 +83,35 @@ namespace HttpTracer
                 throw;
             }
 
-            await LogHttpResponse(response);
+            await LogHttpResponse(response).ConfigureAwait(false);
 
             return response;
-	    }
+        }
 
-		private async Task LogHttpRequest(HttpRequestMessage request)
-		{
-			var requestContent = string.Empty;
-			if (request?.Content != null)
-			{
-				requestContent = await GetRequestContent(request);
-			}
+        private static Task<string> GetRequestContent(HttpRequestMessage request)
+        {
+            return request.Content.ReadAsStringAsync();
+        }
 
-			var httpLogString = $@"==================== HTTP REQUEST: [ {request?.Method} ]====================
+        private static Task<string> GetResponseContent(HttpResponseMessage response)
+        {
+            return response.Content.ReadAsStringAsync();
+        }
+
+        private void LogHttpException(HttpRequestMessage request, Exception ex)
+        {
+            var httpExceptionString = $@"==================== HTTP EXCEPTION: [ {request.Method} ]====================
+[{request.Method}] {request.RequestUri}
+{ex}";
+            _logger.Log(httpExceptionString);
+        }
+
+        private async Task LogHttpRequest(HttpRequestMessage request)
+        {
+            var requestContent = string.Empty;
+            if (request?.Content != null) requestContent = await GetRequestContent(request).ConfigureAwait(false);
+
+            var httpLogString = $@"==================== HTTP REQUEST: [ {request?.Method} ]====================
 {request?.RequestUri}
 Headers:
 {{
@@ -82,55 +120,35 @@ Headers:
 HttpRequest.Content: 
 {requestContent}";
 
-			_logger.Log(httpLogString);
-		}
+            _logger.Log(httpLogString);
+        }
 
-		private async Task LogHttpResponse(HttpResponseMessage response)
-		{
-			var responseContent = string.Empty;
-			if (response?.Content != null)
-			{
-				responseContent = await GetResponseContent(response);
-			}
+        private async Task LogHttpResponse(HttpResponseMessage response)
+        {
+            var responseContent = string.Empty;
+            if (response?.Content != null) responseContent = await GetResponseContent(response).ConfigureAwait(false);
 
-			var responseResult = response?.IsSuccessStatusCode ?? false ? "SUCCEEDED" : "FAILED";
+            var responseResult = response?.IsSuccessStatusCode ?? false ? "SUCCEEDED" : "FAILED";
 
-			var httpLogString = $@"==================== HTTP RESPONSE: [{responseResult}] ====================
+            var httpLogString = $@"==================== HTTP RESPONSE: [{responseResult}] ====================
 [{response?.RequestMessage?.Method}] {response?.RequestMessage?.RequestUri}
 HttpResponse: {response}
 HttpResponse.Content: {responseContent}";
 
-			_logger.Log(httpLogString);
-		}
-
-		private void LogHttpException(HttpRequestMessage request, Exception ex)
-		{
-			var httpExceptionString = $@"==================== HTTP EXCEPTION: [ {request.Method} ]====================
-[{request.Method}] {request.RequestUri}
-{ex}";
-			_logger.Log(httpExceptionString);
-		}
-
-		private static async Task<string> GetResponseContent(HttpResponseMessage response)
-		{
-			return await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-		}
-		private static async Task<string> GetRequestContent(HttpRequestMessage request)
-		{
-			return await request.Content.ReadAsStringAsync().ConfigureAwait(false);
-		}
-	}
+            _logger.Log(httpLogString);
+        }
+    }
 
     public interface ILogger
     {
         void Log(string message);
     }
 
-	public class DebugLogger : ILogger
-	{
-		public void Log(string message)
-		{
-			Debug.WriteLine(message);
-		}
-	}
+    public class DebugLogger : ILogger
+    {
+        public void Log(string message)
+        {
+            Debug.WriteLine(message);
+        }
+    }
 }
