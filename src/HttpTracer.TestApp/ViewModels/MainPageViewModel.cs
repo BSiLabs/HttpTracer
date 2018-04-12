@@ -29,20 +29,7 @@ namespace HttpTracer.TestApp.ViewModels
 
         private async Task ButtonClick()
         {
-
-            HttpHandlerBuilder builder = new HttpHandlerBuilder();
-
-            builder.AddDelegatingHandler(new MyHandler1())
-                .AddDelegatingHandler(new MyHandler2())
-                .AddDelegatingHandler(new MyHandler3());
-
-            //var pipeline = new MyHandler1
-            //{
-            //    InnerHandler = new HttpTracerHandler()
-            //};
-
-            var client = new HttpClient(builder.Build());
-            //var client = new HttpClient(new HttpTracerHandler());
+            var client = new HttpClient(new HttpTracerHandler());
             try
             {
                 var result = await client.GetAsync("https://uinames.com/api?ext&amount=25");

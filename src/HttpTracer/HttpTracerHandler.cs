@@ -7,35 +7,6 @@ using System.Threading.Tasks;
 
 namespace HttpTracer
 {
-    public class HttpHandlerBuilder
-    {
-        private readonly IList<DelegatingHandler> _otherHandlersList = new List<DelegatingHandler>();
-        private HttpTracerHandler _ourHandler = new HttpTracerHandler();
-
-        public HttpHandlerBuilder AddDelegatingHandler(DelegatingHandler handler)
-        {
-            _otherHandlersList.Add(handler);
-            return this;
-        }
-
-        public HttpTracerHandler Build()
-        {
-            // Our handler needs to be the root
-            //var pipeline = new MyHandler1
-            //{
-            //    InnerHandler = new HttpTracerHandler()
-            //};
-            
-            //create the chain of handlers, with our handler as the root
-            foreach (var otherHandler in _otherHandlersList)
-            {
-                //when 
-            }
-
-            return _ourHandler;
-        }
-    }
-
     public class HttpTracerHandler : DelegatingHandler
     {
         private readonly ILogger _logger;
