@@ -7,6 +7,29 @@ using System.Threading.Tasks;
 
 namespace HttpTracer
 {
+    public class HttpHandlerBuilder
+    {
+        private readonly IList<DelegatingHandler> _otherHandlersList = new List<DelegatingHandler>();
+        private HttpTracerHandler _ourHandler = new HttpTracerHandler();
+
+        public HttpHandlerBuilder Add(DelegatingHandler handler)
+        {
+            _otherHandlersList.Add(handler);
+            return this;
+        }
+
+        public void Build()
+        {
+            //receive parameters from client
+
+            //create the chain of 
+            foreach (var otherHandler in _otherHandlersList)
+            {
+                //when 
+            }
+        }
+    }
+
     public class HttpTracerHandler : DelegatingHandler
     {
         private readonly ILogger _logger;
@@ -74,9 +97,9 @@ namespace HttpTracer
 
         private void LogHttpException(HttpRequestMessage request, Exception ex)
         {
-            var httpExceptionString = $@"\n==================== HTTP EXCEPTION: [ {request.Method} ]====================
+            var httpExceptionString = $@"==================== HTTP EXCEPTION: [ {request.Method} ]====================
 [{request.Method}] {request.RequestUri}
-{ex}\n";
+{ex}";
             _logger.Log(httpExceptionString);
         }
 
@@ -85,14 +108,14 @@ namespace HttpTracer
             var requestContent = string.Empty;
             if (request?.Content != null) requestContent = await GetRequestContent(request).ConfigureAwait(false);
 
-            var httpLogString = $@"\n==================== HTTP REQUEST: [ {request?.Method} ]====================
+            var httpLogString = $@"==================== HTTP REQUEST: [ {request?.Method} ]====================
 {request?.RequestUri}
 Headers:
 {{
 {request?.Headers.ToString().TrimEnd()}
 }}
 HttpRequest.Content: 
-{requestContent}\n";
+{requestContent}";
 
             _logger.Log(httpLogString);
         }
@@ -104,10 +127,10 @@ HttpRequest.Content:
 
             var responseResult = response?.IsSuccessStatusCode ?? false ? "SUCCEEDED" : "FAILED";
 
-            var httpLogString = $@"\n==================== HTTP RESPONSE: [{responseResult}] ====================
+            var httpLogString = $@"==================== HTTP RESPONSE: [{responseResult}] ====================
 [{response?.RequestMessage?.Method}] {response?.RequestMessage?.RequestUri}
 HttpResponse: {response}
-HttpResponse.Content: {responseContent}\n";
+HttpResponse.Content: {responseContent}";
 
             _logger.Log(httpLogString);
         }
