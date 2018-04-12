@@ -29,7 +29,15 @@ namespace HttpTracer.TestApp.ViewModels
 
         private async Task ButtonClick()
         {
-            var client = new HttpClient(new HttpTracerHandler());
+
+
+            var root = new HttpTracerHandler{InnerHandler = new MyHandler3{ InnerHandler = new MyHandler1()} };
+
+           var child = new MyHandler1 { InnerHandler = new MyHandler3 { InnerHandler = new HttpTracerHandler() } };
+
+
+            var client = new HttpClient(child);
+            //var client = new HttpClient(root);
             try
             {
                 var result = await client.GetAsync("https://uinames.com/api?ext&amount=25");
@@ -43,6 +51,12 @@ namespace HttpTracer.TestApp.ViewModels
 
     public class MyHandler1 : DelegatingHandler
     {
+        public MyHandler1()
+        {
+            InnerHandler = new HttpClientHandler()
+                ;
+        }
+
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,
             CancellationToken cancellationToken)
         {
@@ -52,32 +66,24 @@ namespace HttpTracer.TestApp.ViewModels
 
             Debug.WriteLine("HI I'M MyHandler1");
 
-            return new HttpResponseMessage();
-
-        }
-    }
-
-    public class MyHandler2 : DelegatingHandler
-    {
-        protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,
-            CancellationToken cancellationToken)
-        {
-            await Task.Delay(1, cancellationToken);
-
-            Debug.WriteLine("HI I'M MyHandler2");
+            await base.SendAsync(request, cancellationToken).ConfigureAwait(false);
 
             return new HttpResponseMessage();
 
         }
     }
+
     public class MyHandler3 : DelegatingHandler
     {
+        
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,
             CancellationToken cancellationToken)
         {
             await Task.Delay(1, cancellationToken);
             request.Headers.Add("SILLY-HEADER-3", "SILLY VALUE 3");
-           
+
+            await base.SendAsync(request, cancellationToken).ConfigureAwait(false);
+
             return new HttpResponseMessage();
         }
     }
