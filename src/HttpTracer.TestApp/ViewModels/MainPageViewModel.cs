@@ -29,13 +29,20 @@ namespace HttpTracer.TestApp.ViewModels
 
         private async Task ButtonClick()
         {
-            var pipeline = new MyHandler1
-            {
-                InnerHandler = new HttpTracerHandler()
-            };
 
-            //var client = new HttpClient(pipeline);
-            var client = new HttpClient(new HttpTracerHandler());
+            HttpHandlerBuilder builder = new HttpHandlerBuilder();
+
+            builder.AddDelegatingHandler(new MyHandler1())
+                .AddDelegatingHandler(new MyHandler2())
+                .AddDelegatingHandler(new MyHandler3());
+
+            //var pipeline = new MyHandler1
+            //{
+            //    InnerHandler = new HttpTracerHandler()
+            //};
+
+            var client = new HttpClient(builder.Build());
+            //var client = new HttpClient(new HttpTracerHandler());
             try
             {
                 var result = await client.GetAsync("https://uinames.com/api?ext&amount=25");
@@ -54,7 +61,9 @@ namespace HttpTracer.TestApp.ViewModels
         {
             await Task.Delay(1, cancellationToken);
 
-            Debug.WriteLine("Shiit");
+            request.Headers.Add("SILLY-HEADER", "SILLY VALUE");
+
+            Debug.WriteLine("HI I'M MyHandler1");
 
             return new HttpResponseMessage();
 
@@ -68,7 +77,7 @@ namespace HttpTracer.TestApp.ViewModels
         {
             await Task.Delay(1, cancellationToken);
 
-            Debug.WriteLine("Shiit 2");
+            Debug.WriteLine("HI I'M MyHandler2");
 
             return new HttpResponseMessage();
 
@@ -80,9 +89,8 @@ namespace HttpTracer.TestApp.ViewModels
             CancellationToken cancellationToken)
         {
             await Task.Delay(1, cancellationToken);
-
-            Debug.WriteLine("Shiit 3");
-
+            request.Headers.Add("SILLY-HEADER-3", "SILLY VALUE 3");
+           
             return new HttpResponseMessage();
         }
     }
