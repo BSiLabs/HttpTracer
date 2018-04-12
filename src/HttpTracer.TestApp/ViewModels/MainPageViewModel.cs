@@ -29,12 +29,6 @@ namespace HttpTracer.TestApp.ViewModels
 
         private async Task ButtonClick()
         {
-            var pipeline = new MyHandler1
-            {
-                InnerHandler = new HttpTracerHandler()
-            };
-
-            //var client = new HttpClient(pipeline);
             var client = new HttpClient(new HttpTracerHandler());
             try
             {
@@ -54,7 +48,9 @@ namespace HttpTracer.TestApp.ViewModels
         {
             await Task.Delay(1, cancellationToken);
 
-            Debug.WriteLine("Shiit");
+            request.Headers.Add("SILLY-HEADER", "SILLY VALUE");
+
+            Debug.WriteLine("HI I'M MyHandler1");
 
             return new HttpResponseMessage();
 
@@ -68,7 +64,7 @@ namespace HttpTracer.TestApp.ViewModels
         {
             await Task.Delay(1, cancellationToken);
 
-            Debug.WriteLine("Shiit 2");
+            Debug.WriteLine("HI I'M MyHandler2");
 
             return new HttpResponseMessage();
 
@@ -80,9 +76,8 @@ namespace HttpTracer.TestApp.ViewModels
             CancellationToken cancellationToken)
         {
             await Task.Delay(1, cancellationToken);
-
-            Debug.WriteLine("Shiit 3");
-
+            request.Headers.Add("SILLY-HEADER-3", "SILLY VALUE 3");
+           
             return new HttpResponseMessage();
         }
     }
