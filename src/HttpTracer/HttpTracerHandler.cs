@@ -9,24 +9,29 @@ namespace HttpTracer
 {
     public class HttpHandlerBuilder
     {
-        private readonly IList<DelegatingHandler> _otherHandlersList = new List<DelegatingHandler>();
-        private HttpTracerHandler _ourHandler = new HttpTracerHandler();
+        private DelegatingHandler _baseHandler;
+        private readonly HttpTracerHandler _ourHandler = new HttpTracerHandler();
 
-        public HttpHandlerBuilder Add(DelegatingHandler handler)
+        public HttpHandlerBuilder AddHttpHandlers(DelegatingHandler handler)
         {
-            _otherHandlersList.Add(handler);
+            if (_baseHandler == null)
+                _baseHandler = handler;
+            else
+                FindBottom(_baseHandler);
+
             return this;
         }
 
-        public void Build()
+        private void FindBottom(DelegatingHandler handler)
         {
-            //receive parameters from client
+            //if(_baseHandler.InnerHandler != null)
 
-            //create the chain of 
-            foreach (var otherHandler in _otherHandlersList)
-            {
-                //when 
-            }
+
+        }
+
+        public HttpMessageHandler Build()
+        {
+            return _ourHandler;
         }
     }
 
