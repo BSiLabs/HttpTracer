@@ -29,14 +29,7 @@ namespace HttpTracer.TestApp.ViewModels
 
         private async Task ButtonClick()
         {
-
-
-            var root = new HttpTracerHandler{InnerHandler = new MyHandler3{ InnerHandler = new MyHandler1()} };
-
-           var child = new MyHandler1 { InnerHandler = new MyHandler3 { InnerHandler = new HttpTracerHandler() } };
-
-
-            var client = new HttpClient(child);
+            var client = new HttpClient(new HttpTracerHandler());
             //var client = new HttpClient(root);
             try
             {
