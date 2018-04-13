@@ -49,42 +49,5 @@ namespace HttpTracer.TestApp.ViewModels
         }
     }
 
-    public class MyHandler1 : DelegatingHandler
-    {
-        public MyHandler1()
-        {
-            InnerHandler = new HttpClientHandler()
-                ;
-        }
-
-        protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,
-            CancellationToken cancellationToken)
-        {
-            await Task.Delay(1, cancellationToken);
-
-            request.Headers.Add("SILLY-HEADER", "SILLY VALUE");
-
-            Debug.WriteLine("HI I'M MyHandler1");
-
-            await base.SendAsync(request, cancellationToken).ConfigureAwait(false);
-
-            return new HttpResponseMessage();
-
-        }
-    }
-
-    public class MyHandler3 : DelegatingHandler
-    {
-        
-        protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,
-            CancellationToken cancellationToken)
-        {
-            await Task.Delay(1, cancellationToken);
-            request.Headers.Add("SILLY-HEADER-3", "SILLY VALUE 3");
-
-            await base.SendAsync(request, cancellationToken).ConfigureAwait(false);
-
-            return new HttpResponseMessage();
-        }
-    }
+   
 }
