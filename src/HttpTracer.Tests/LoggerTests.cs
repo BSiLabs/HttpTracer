@@ -33,9 +33,9 @@ namespace HttpTracer.Tests
         public async Task UsingBuilderClass()
         {
             var builder = new HttpHandlerBuilder();
-            builder.AddHttpHandlers(new MyHandler3())
-                .AddHttpHandlers(new MyHandler1())
-                .AddHttpHandlers(new MyHandler3());
+            builder.AddHandler(new MyHandler3())
+                .AddHandler(new MyHandler1())
+                .AddHandler(new MyHandler3());
 
             var client = new HttpClient(builder.Build());
             try

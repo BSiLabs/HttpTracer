@@ -51,9 +51,9 @@ namespace HttpTracer.Tests
         public void MakeSureHierarchyIsBuilt()
         {
             var builder = new HttpHandlerBuilder();
-            builder.AddHttpHandlers(new MyHandler3())
-                .AddHttpHandlers(new MyHandler1())
-                .AddHttpHandlers(new MyHandler3());
+            builder.AddHandler(new MyHandler3())
+                .AddHandler(new MyHandler1())
+                .AddHandler(new MyHandler3());
 
             var httpHandler = builder.Build();
             var first = ((DelegatingHandler)httpHandler).InnerHandler;
@@ -71,9 +71,9 @@ namespace HttpTracer.Tests
         public void MakeSureHierarchyIsBuiltWithCorrectType()
         {
             var builder = new HttpHandlerBuilder();
-            builder.AddHttpHandlers(new MyHandler3())
-                .AddHttpHandlers(new MyHandler1())
-                .AddHttpHandlers(new MyHandler3());
+            builder.AddHandler(new MyHandler3())
+                .AddHandler(new MyHandler1())
+                .AddHandler(new MyHandler3());
 
             var first = builder.Build();
             var second = ((DelegatingHandler)first).InnerHandler;
@@ -95,7 +95,7 @@ namespace HttpTracer.Tests
         }
 
         [TestMethod]
-        public void MakingSureTheInnerHandlerOfOurHandlerIsNitNull()
+        public void MakingSureTheInnerHandlerOfOurHandlerIsNotNull()
         {
             var ourHandler = new HttpHandlerBuilder().Build();
 
