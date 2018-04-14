@@ -76,7 +76,6 @@ namespace HttpTracer.Tests
                 .AddHttpHandlers(new MyHandler3());
 
             var client = new HttpClient(builder.Build());
-            //var client = new HttpClient(root);
             try
             {
                 var result = await client.GetAsync("https://uinames.com/api?ext&amount=25");
