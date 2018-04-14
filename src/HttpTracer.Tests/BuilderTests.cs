@@ -45,7 +45,7 @@ namespace HttpTracer.Tests
     }
 
     [TestClass]
-    public class BuilserTests
+    public class BuilderTests
     {
         [TestMethod]
         public void MakeSureHierarchyIsBuilt()
