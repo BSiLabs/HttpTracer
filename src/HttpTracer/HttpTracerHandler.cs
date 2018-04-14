@@ -10,13 +10,13 @@ namespace HttpTracer
 {
     public class HttpHandlerBuilder
     {
-        private readonly IList<DelegatingHandler> _handlersList = new List<DelegatingHandler>();
+        private readonly IList<HttpMessageHandler> _handlersList = new List<HttpMessageHandler>();
         private readonly HttpTracerHandler _ourHandler = new HttpTracerHandler();
 
-        public HttpHandlerBuilder AddHttpHandlers(DelegatingHandler handler)
+        public HttpHandlerBuilder AddHandler(HttpMessageHandler handler)
         {
             if (_handlersList.Any())
-                _handlersList.LastOrDefault().InnerHandler = handler;
+                ((DelegatingHandler)_handlersList.LastOrDefault()).InnerHandler = handler;
 
             _handlersList.Add(handler);
             return this;
@@ -25,7 +25,7 @@ namespace HttpTracer
         public HttpMessageHandler Build()
         {
             if (_handlersList.Any())
-                _handlersList.LastOrDefault().InnerHandler = _ourHandler;
+                ((DelegatingHandler)_handlersList.LastOrDefault()).InnerHandler = _ourHandler;
             else
                 return _ourHandler;
 
