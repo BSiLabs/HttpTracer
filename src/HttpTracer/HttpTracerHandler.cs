@@ -13,8 +13,15 @@ namespace HttpTracer
         private readonly IList<HttpMessageHandler> _handlersList = new List<HttpMessageHandler>();
         private readonly HttpTracerHandler _ourHandler = new HttpTracerHandler();
 
+        /// <summary>
+        /// Adds a <see cref="HttpMessageHandler"/> to the chain of handlers.
+        /// </summary>
+        /// <param name="handler"></param>
+        /// <returns></returns>
         public HttpHandlerBuilder AddHandler(HttpMessageHandler handler)
         {
+            if (handler is HttpTracerHandler) throw new ArgumentException($"Can't add handler of type {nameof(HttpTracerHandler)}.");
+
             if (_handlersList.Any())
                 ((DelegatingHandler)_handlersList.LastOrDefault()).InnerHandler = handler;
 
@@ -22,6 +29,10 @@ namespace HttpTracer
             return this;
         }
 
+        /// <summary>
+        /// Adds <see cref="HttpTracerHandler"/> as the last link of the chain.
+        /// </summary>
+        /// <returns></returns>
         public HttpMessageHandler Build()
         {
             if (_handlersList.Any())
@@ -59,7 +70,7 @@ namespace HttpTracer
         public HttpTracerHandler() : this(new HttpClientHandler(), new DebugLogger())
         {
         }
-        
+
         /// <summary>
         /// Constructs the <see cref="HttpTracerHandler"/> with a custom <see cref="ILogger"/> and a custom <see cref="HttpMessageHandler"/>
         /// </summary>
@@ -73,17 +84,16 @@ namespace HttpTracer
 
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
-            await LogHttpRequest(request).ConfigureAwait(false);
-
             try
             {
+                LogHttpRequest(request).FireAndForget();
                 var response = await base.SendAsync(request, cancellationToken).ConfigureAwait(false);
-                await LogHttpResponse(response).ConfigureAwait(false);
+                LogHttpResponse(response).FireAndForget();
                 return response;
             }
             catch (Exception ex)
             {
-                LogHttpException(request, ex);
+                LogHttpException(request, ex).FireAndForget();
                 throw;
             }
         }
@@ -98,12 +108,13 @@ namespace HttpTracer
             return response.Content.ReadAsStringAsync();
         }
 
-        private void LogHttpException(HttpRequestMessage request, Exception ex)
+        private Task LogHttpException(HttpRequestMessage request, Exception ex)
         {
             var httpExceptionString = $@"==================== HTTP EXCEPTION: [ {request.Method} ]====================
 [{request.Method}] {request.RequestUri}
 {ex}";
             _logger.Log(httpExceptionString);
+            return Task.CompletedTask;
         }
 
         private async Task LogHttpRequest(HttpRequestMessage request)
