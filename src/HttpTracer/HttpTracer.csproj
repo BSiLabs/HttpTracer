@@ -1,16 +1,43 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
-    <Authors>Dylan Berry; Daniel Causer</Authors>
-    <Company>Toronto Mobile .NET Developers Group</Company>
-    <Product>HttpTracer (netstandard2.0)</Product>
-    <PackageTags>xamarin, windows, ios, android, cache, http</PackageTags>
-    <RepositoryUrl>https://github.com/TorontoMobileDevelopers/HttpTracer</RepositoryUrl>
-    <PackageProjectUrl>https://github.com/TorontoMobileDevelopers/HttpTracer</PackageProjectUrl>
+    <TargetFrameworks>netstandard2.0;Xamarin.iOS10;MonoAndroid50;Xamarin.Mac20;uap10.0.16299</TargetFrameworks>
+    <Product>$(AssemblyName) ($(TargetFramework))</Product>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <AssemblyFileVersion>1.0.0.0</AssemblyFileVersion>
+    <Version>1.0.0.0</Version>
+    <PackageVersion>1.0.0.0</PackageVersion>
+    <Authors>Dylan Berry; Daniel Causer; Chase Florell</Authors>
+    <PackageId>HttpTracer</PackageId>
+    <PackOnBuild>true</PackOnBuild>
+    <NeutralLanguage>en</NeutralLanguage>
     <PackageLicenseUrl>https://github.com/TorontoMobileDevelopers/HttpTracer/blob/master/LICENSE</PackageLicenseUrl>
+    <Owners>Toronto Mobile .NET Developers Group</Owners>
+    <PackageProjectUrl>https://github.com/TorontoMobileDevelopers/HttpTracer</PackageProjectUrl>
+    <Summary>A simple http tracing library to write request and response information to your output window. Making your life easier when debugging http calls!</Summary>
+    <PackageTags>xamarin, windows, ios, android, http, tracing</PackageTags>
+    <Title>HttpTracer - A Http tracking lib</Title>
     <Description>A simple http tracing library to write request and response information to your output window. Making your life easier when debugging http calls!</Description>
+    <Copyright>2017 &amp; Toronto Mobile .NET Developers Group</Copyright>
+    <RepositoryUrl>https://github.com/TorontoMobileDevelopers/HttpTracer</RepositoryUrl>
+    <PackageReleaseNotes>See: https://github.com/TorontoMobileDevelopers/HttpTracer</PackageReleaseNotes>
+
+    <LangVersion>default</LangVersion>
+
+    <DefineConstants>$(DefineConstants);</DefineConstants>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <RootNamespace>MonkeyCache</RootNamespace>
+    <GenerateDocumentationFile Condition=" '$(Configuration)' == 'Release' ">true</GenerateDocumentationFile>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Condition=" '$(TargetFramework)' == 'uap10.0.16299' " Include="Microsoft.NETCore.UniversalWindowsPlatform " Version="6.0.6" />
+    <PackageReference Include="MSBuild.Sdk.Extras" Version="1.2.0" PrivateAssets="All" />
+
+    <Reference Condition=" '$(TargetFramework)' == 'Xamarin.Mac20' " Include="System.Net.Http" />
+  </ItemGroup>
+
+
+  <Import Project="$(MSBuildSDKExtrasTargets)" Condition="Exists('$(MSBuildSDKExtrasTargets)')" />
 
 </Project>
