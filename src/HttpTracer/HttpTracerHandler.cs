@@ -11,14 +11,14 @@ namespace HttpTracer
     public class HttpHandlerBuilder
     {
         private readonly IList<HttpMessageHandler> _handlersList = new List<HttpMessageHandler>();
-        private readonly HttpTracerHandler _ourHandler;
+        private readonly HttpTracerHandler _rootHandler;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="T:HttpTracer.HttpHandlerBuilder"/> class.
         /// </summary>
         public HttpHandlerBuilder()
         {
-            _ourHandler = new HttpTracerHandler();
+            _rootHandler = new HttpTracerHandler();
         }
 
         /// <summary>
@@ -27,7 +27,16 @@ namespace HttpTracer
         /// <param name="logger">Logger.</param>
         public HttpHandlerBuilder(ILogger logger)
         {
-            _ourHandler = new HttpTracerHandler(logger);
+            _rootHandler = new HttpTracerHandler(logger);
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="T:HttpTracer.HttpHandlerBuilder"/> class.
+        /// </summary>
+        /// <param name="tracerHandler">Tracer handler.</param>
+        public HttpHandlerBuilder(HttpTracerHandler tracerHandler)
+        {
+            _rootHandler = tracerHandler;
         }
 
         /// <summary>
@@ -53,9 +62,9 @@ namespace HttpTracer
         public HttpMessageHandler Build()
         {
             if (_handlersList.Any())
-                ((DelegatingHandler)_handlersList.LastOrDefault()).InnerHandler = _ourHandler;
+                ((DelegatingHandler)_handlersList.LastOrDefault()).InnerHandler = _rootHandler;
             else
-                return _ourHandler;
+                return _rootHandler;
 
             return _handlersList.FirstOrDefault();
         }
@@ -117,17 +126,17 @@ namespace HttpTracer
             }
         }
 
-        private static Task<string> GetRequestContent(HttpRequestMessage request)
+        protected static Task<string> GetRequestContent(HttpRequestMessage request)
         {
             return request.Content.ReadAsStringAsync();
         }
 
-        private static Task<string> GetResponseContent(HttpResponseMessage response)
+        protected static Task<string> GetResponseContent(HttpResponseMessage response)
         {
             return response.Content.ReadAsStringAsync();
         }
 
-        private void LogHttpException(HttpRequestMessage request, Exception ex)
+        protected void LogHttpException(HttpRequestMessage request, Exception ex)
         {
             var httpExceptionString = $@"{LogMessageIndicatorPrefix} HTTP EXCEPTION: [{request.Method}]{LogMessageIndicatorSuffix}
 [{request.Method}] {request.RequestUri}
@@ -135,7 +144,7 @@ namespace HttpTracer
             _logger.Log(httpExceptionString);
         }
 
-        private async Task LogHttpRequest(HttpRequestMessage request)
+        protected async Task LogHttpRequest(HttpRequestMessage request)
         {
             var requestContent = string.Empty;
             if (request?.Content != null) requestContent = await GetRequestContent(request).ConfigureAwait(false);
@@ -152,7 +161,7 @@ HttpRequest.Content:
             _logger.Log(httpLogString);
         }
 
-        private async Task LogHttpResponse(HttpResponseMessage response)
+        protected async Task LogHttpResponse(HttpResponseMessage response)
         {
             var responseContent = string.Empty;
             if (response?.Content != null) responseContent = await GetResponseContent(response).ConfigureAwait(false);
