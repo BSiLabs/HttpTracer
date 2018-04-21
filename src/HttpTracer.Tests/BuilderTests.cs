@@ -103,5 +103,19 @@ namespace HttpTracer.Tests
 
             Assert.IsInstanceOfType(inner, typeof(HttpMessageHandler));
         }
+
+        [TestMethod]
+        public void AddingHttpMessageHandlerToAddHandlerMethodTHrowsArgumentException()
+        {
+            try
+            {
+                var ourHandler = new HttpHandlerBuilder().AddHandler(new HttpTracerHandler());
+            }
+            catch (Exception ex)
+            {
+                Assert.IsInstanceOfType(ex, typeof(ArgumentException));
+                Assert.AreEqual(ex.Message, $"Can't add handler of type {nameof(HttpTracerHandler)}.");
+            }
+        }
     }
 }

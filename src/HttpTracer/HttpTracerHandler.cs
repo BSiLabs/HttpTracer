@@ -11,10 +11,43 @@ namespace HttpTracer
     public class HttpHandlerBuilder
     {
         private readonly IList<HttpMessageHandler> _handlersList = new List<HttpMessageHandler>();
-        private readonly HttpTracerHandler _ourHandler = new HttpTracerHandler();
+        private readonly HttpTracerHandler _rootHandler;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="T:HttpTracer.HttpHandlerBuilder"/> class.
+        /// </summary>
+        public HttpHandlerBuilder()
+        {
+            _rootHandler = new HttpTracerHandler();
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="T:HttpTracer.HttpHandlerBuilder"/> class.
+        /// </summary>
+        /// <param name="logger">Logger.</param>
+        public HttpHandlerBuilder(ILogger logger)
+        {
+            _rootHandler = new HttpTracerHandler(logger);
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="T:HttpTracer.HttpHandlerBuilder"/> class.
+        /// </summary>
+        /// <param name="tracerHandler">Tracer handler.</param>
+        public HttpHandlerBuilder(HttpTracerHandler tracerHandler)
+        {
+            _rootHandler = tracerHandler;
+        }
+
+        /// <summary>
+        /// Adds a <see cref="HttpMessageHandler"/> to the chain of handlers.
+        /// </summary>
+        /// <param name="handler"></param>
+        /// <returns></returns>
         public HttpHandlerBuilder AddHandler(HttpMessageHandler handler)
         {
+            if (handler is HttpTracerHandler) throw new ArgumentException($"Can't add handler of type {nameof(HttpTracerHandler)}.");
+
             if (_handlersList.Any())
                 ((DelegatingHandler)_handlersList.LastOrDefault()).InnerHandler = handler;
 
@@ -22,12 +55,16 @@ namespace HttpTracer
             return this;
         }
 
+        /// <summary>
+        /// Adds <see cref="HttpTracerHandler"/> as the last link of the chain.
+        /// </summary>
+        /// <returns></returns>
         public HttpMessageHandler Build()
         {
             if (_handlersList.Any())
-                ((DelegatingHandler)_handlersList.LastOrDefault()).InnerHandler = _ourHandler;
+                ((DelegatingHandler)_handlersList.LastOrDefault()).InnerHandler = _rootHandler;
             else
-                return _ourHandler;
+                return _rootHandler;
 
             return _handlersList.FirstOrDefault();
         }
@@ -36,6 +73,8 @@ namespace HttpTracer
     public class HttpTracerHandler : DelegatingHandler
     {
         private readonly ILogger _logger;
+        private const string LogMessageIndicatorPrefix = "====================";
+        private const string LogMessageIndicatorSuffix = "====================";
 
         /// <summary>
         /// Constructs the <see cref="HttpTracerHandler"/> with a custom <see cref="HttpMessageHandler"/> and the default <see cref="DebugLogger"/>
@@ -59,7 +98,7 @@ namespace HttpTracer
         public HttpTracerHandler() : this(new HttpClientHandler(), new DebugLogger())
         {
         }
-        
+
         /// <summary>
         /// Constructs the <see cref="HttpTracerHandler"/> with a custom <see cref="ILogger"/> and a custom <see cref="HttpMessageHandler"/>
         /// </summary>
@@ -73,12 +112,11 @@ namespace HttpTracer
 
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
-            await LogHttpRequest(request).ConfigureAwait(false);
-
             try
             {
+                LogHttpRequest(request).FireAndForget();
                 var response = await base.SendAsync(request, cancellationToken).ConfigureAwait(false);
-                await LogHttpResponse(response).ConfigureAwait(false);
+                LogHttpResponse(response).FireAndForget();
                 return response;
             }
             catch (Exception ex)
@@ -88,30 +126,30 @@ namespace HttpTracer
             }
         }
 
-        private static Task<string> GetRequestContent(HttpRequestMessage request)
+        protected static Task<string> GetRequestContent(HttpRequestMessage request)
         {
             return request.Content.ReadAsStringAsync();
         }
 
-        private static Task<string> GetResponseContent(HttpResponseMessage response)
+        protected static Task<string> GetResponseContent(HttpResponseMessage response)
         {
             return response.Content.ReadAsStringAsync();
         }
 
-        private void LogHttpException(HttpRequestMessage request, Exception ex)
+        protected void LogHttpException(HttpRequestMessage request, Exception ex)
         {
-            var httpExceptionString = $@"==================== HTTP EXCEPTION: [ {request.Method} ]====================
+            var httpExceptionString = $@"{LogMessageIndicatorPrefix} HTTP EXCEPTION: [{request.Method}]{LogMessageIndicatorSuffix}
 [{request.Method}] {request.RequestUri}
 {ex}";
             _logger.Log(httpExceptionString);
         }
 
-        private async Task LogHttpRequest(HttpRequestMessage request)
+        protected async Task LogHttpRequest(HttpRequestMessage request)
         {
             var requestContent = string.Empty;
             if (request?.Content != null) requestContent = await GetRequestContent(request).ConfigureAwait(false);
 
-            var httpLogString = $@"==================== HTTP REQUEST: [ {request?.Method} ]====================
+            var httpLogString = $@"{LogMessageIndicatorPrefix}HTTP REQUEST: [{request?.Method}]{LogMessageIndicatorSuffix}
 {request?.RequestUri}
 Headers:
 {{
@@ -123,14 +161,14 @@ HttpRequest.Content:
             _logger.Log(httpLogString);
         }
 
-        private async Task LogHttpResponse(HttpResponseMessage response)
+        protected async Task LogHttpResponse(HttpResponseMessage response)
         {
             var responseContent = string.Empty;
             if (response?.Content != null) responseContent = await GetResponseContent(response).ConfigureAwait(false);
 
             var responseResult = response?.IsSuccessStatusCode ?? false ? "SUCCEEDED" : "FAILED";
 
-            var httpLogString = $@"==================== HTTP RESPONSE: [{responseResult}] ====================
+            var httpLogString = $@"{LogMessageIndicatorPrefix}HTTP RESPONSE: [{responseResult}]{LogMessageIndicatorSuffix}
 [{response?.RequestMessage?.Method}] {response?.RequestMessage?.RequestUri}
 HttpResponse: {response}
 HttpResponse.Content: {responseContent}";
