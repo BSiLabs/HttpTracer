@@ -1,7 +1,7 @@
 # HttpTracer
 A simple http tracing library to write request and response information to your output window. Making your life easier when debugging http calls!
 
-![](https://danielcauserblog.files.wordpress.com/2018/04/get_trace.gif)
+![](https://danielcauserblog.files.wordpress.com/2018/04/tracer_tracing_get1.gif)
 
 **Platform Support**
 
