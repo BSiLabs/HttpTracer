@@ -26,7 +26,7 @@
 
     <DefineConstants>$(DefineConstants);</DefineConstants>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <RootNamespace>MonkeyCache</RootNamespace>
+    <RootNamespace>HttpTracer</RootNamespace>
     <GenerateDocumentationFile Condition=" '$(Configuration)' == 'Release' ">true</GenerateDocumentationFile>
   </PropertyGroup>
 
