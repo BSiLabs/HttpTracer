@@ -169,12 +169,13 @@ HttpRequest.Content:
             const string succeeded = "SUCCEEDED";
             const string failed = "FAILED";
 
-            var responseResult = response == null ? failed : (response.IsSuccessStatusCode ? $"{succeeded}: {response.StatusCode}" : $"{failed}: {response.StatusCode}");
+            var responseResult = response == null ? failed : (response.IsSuccessStatusCode ? $"{succeeded}: {(int)response.StatusCode} {response.StatusCode}" : $"{failed}: {(int)response.StatusCode} {response.StatusCode}");
 
             var httpLogString = $@"{LogMessageIndicatorPrefix}HTTP RESPONSE: [{responseResult}]{LogMessageIndicatorSuffix}
 [{response?.RequestMessage?.Method}] {response?.RequestMessage?.RequestUri}
 HttpResponse: {response}
-HttpResponse.Content: {responseContent}";
+HttpResponse.Content: 
+{responseContent}";
 
             _logger.Log(httpLogString);
         }
