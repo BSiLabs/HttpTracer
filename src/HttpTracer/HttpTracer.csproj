@@ -14,6 +14,7 @@
     <PackageLicenseUrl>https://github.com/TorontoMobileDevelopers/HttpTracer/blob/master/LICENSE</PackageLicenseUrl>
     <Owners>Toronto Mobile .NET Developers Group</Owners>
     <PackageProjectUrl>https://github.com/TorontoMobileDevelopers/HttpTracer</PackageProjectUrl>
+    <PackageIconUrl>https://raw.githubusercontent.com/TorontoMobileDevelopers/HttpTracer/master/art/HttpTracer.png</PackageIconUrl>
     <Summary>A simple http tracing library to write request and response information to your output window. Making your life easier when debugging http calls!</Summary>
     <PackageTags>xamarin, windows, ios, android, http, tracing</PackageTags>
     <Title>HttpTracer - A Http tracking lib</Title>
