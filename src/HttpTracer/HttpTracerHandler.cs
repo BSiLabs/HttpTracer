@@ -126,14 +126,14 @@ namespace HttpTracer
             }
         }
 
-        protected static Task<string> GetRequestContent(HttpRequestMessage request)
+        protected static async Task<string> GetRequestContent(HttpRequestMessage request)
         {
-            return request.Content.ReadAsStringAsync();
+            return await request.Content.ReadAsStringAsync();
         }
 
-        protected static Task<string> GetResponseContent(HttpResponseMessage response)
+        protected static async Task<string> GetResponseContent(HttpResponseMessage response)
         {
-            return response.Content.ReadAsStringAsync();
+            return await response.Content.ReadAsStringAsync();
         }
 
         protected void LogHttpException(HttpRequestMessage request, Exception ex)
