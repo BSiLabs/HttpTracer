@@ -1,12 +1,12 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;Xamarin.iOS10;MonoAndroid50;Xamarin.Mac20;uap10.0.16299</TargetFrameworks>
     <Product>$(AssemblyName) ($(TargetFramework))</Product>
     <AssemblyVersion>1.0.1.0</AssemblyVersion>
-    <AssemblyFileVersion>1.0.0.0</AssemblyFileVersion>
+    <AssemblyFileVersion>1.0.1.0</AssemblyFileVersion>
     <Version>1.0.1.0</Version>
-    <PackageVersion>1.0.0.0</PackageVersion>
+    <PackageVersion>1.0.1.0</PackageVersion>
     <Authors>Dylan Berry; Daniel Causer; Chase Florell</Authors>
     <PackageId>HttpTracer</PackageId>
     <PackOnBuild>true</PackOnBuild>
