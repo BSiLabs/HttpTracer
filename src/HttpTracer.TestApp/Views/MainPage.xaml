@@ -7,8 +7,11 @@
     <StackLayout HorizontalOptions="CenterAndExpand" VerticalOptions="CenterAndExpand">
         <Label Text="Welcome to Xamarin Forms and Prism!" />
 
-        <Button Text="Hit me!"
+        <Button Text="Dump trace to Console!"
                 Command="{Binding ButtonClickCommand}" />
+
+        <Button Text="Dump tace to File!"
+                Command="{Binding TraceFileCommand}" />
     </StackLayout>
 
 </ContentPage>

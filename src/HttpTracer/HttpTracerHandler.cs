@@ -114,9 +114,9 @@ namespace HttpTracer
         {
             try
             {
-                LogHttpRequest(request).FireAndForget();
+                await LogHttpRequest(request);
                 var response = await base.SendAsync(request, cancellationToken).ConfigureAwait(false);
-                LogHttpResponse(response).FireAndForget();
+                await LogHttpResponse(response);
                 return response;
             }
             catch (Exception ex)
