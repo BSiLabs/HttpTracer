@@ -10,7 +10,7 @@
         <Button Text="Dump trace to Console!"
                 Command="{Binding ButtonClickCommand}" />
 
-        <Button Text="Dump tace to File!"
+        <Button Text="Dump trace to File!"
                 Command="{Binding TraceFileCommand}" />
     </StackLayout>
 
