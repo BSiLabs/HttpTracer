@@ -150,13 +150,13 @@ namespace HttpTracer
             if (request?.Content != null) requestContent = await GetRequestContent(request).ConfigureAwait(false);
 
             var httpLogString = $@"{LogMessageIndicatorPrefix}HTTP REQUEST: [{request?.Method}]{LogMessageIndicatorSuffix}
-{request?.RequestUri}
-Headers:
-{{
+{request?.Method} {request?.RequestUri}
 {request?.Headers.ToString().TrimEnd()}
-}}
-HttpRequest.Content: 
-{requestContent}";
+content-type: application/json
+
+{{
+{requestContent}
+}}";
 
             _logger.Log(httpLogString);
         }
