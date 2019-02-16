@@ -1,6 +1,11 @@
 # HttpTracer
 A simple http tracing library to write request and response information to your output window. Making your life easier when debugging http calls!
 
+|Channel|Status|
+| ------------------- | :------------------: |
+|Build|[![Build status](https://burstingsilver.visualstudio.com/BSiLabs/_apis/build/status/HttpTracer)](https://burstingsilver.visualstudio.com/BSiLabs/_build/latest?definitionId=78)|
+|NuGet.org |[![#](https://img.shields.io/nuget/v/httptracer.svg?style=flat)](https://www.nuget.org/packages/HttpTracer/)|
+
 ![](https://danielcauserblog.files.wordpress.com/2018/04/tracer_tracing_get1.gif)
 
 **Platform Support**

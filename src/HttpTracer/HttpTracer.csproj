@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;netstandard1.4;Xamarin.iOS10;MonoAndroid50;Xamarin.Mac20;uap10.0.16299</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;netstandard1.4</TargetFrameworks>
     <Product>$(AssemblyName) ($(TargetFramework))</Product>
     <AssemblyVersion>1.0.1.0</AssemblyVersion>
     <AssemblyFileVersion>1.0.1.0</AssemblyFileVersion>
