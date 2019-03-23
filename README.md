@@ -30,6 +30,7 @@ using HttpTracer;
 public async Task GetMyData()
 {
     var tracer = new HttpTracerHandler();
+    tracer.Verbosity = LogLevel.Information;
     var client = new HttpClient(tracer);
     var result = await client.GetAsync("http://myserviceurl.com");
 }
@@ -47,7 +48,10 @@ public async Task GetMyData()
            .AddHandler(new MyHandler2())
            .AddHandler(new MyHandler1());
            
-    var client = new HttpClient(builder.Build());
+    var tracer = builder.Build();
+    tracer.Verbosity = LogLevel.Information;
+    
+    var client = new HttpClient(tracer);
     var result = await client.GetAsync("http://myserviceurl.com");
 }
 ```
