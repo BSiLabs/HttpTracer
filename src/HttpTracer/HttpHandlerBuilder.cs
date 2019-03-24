@@ -13,18 +13,10 @@ namespace HttpTracer
         /// <summary>
         /// Initializes a new instance of the <see cref="T:HttpTracer.HttpHandlerBuilder"/> class.
         /// </summary>
-        public HttpHandlerBuilder()
-        {
-            _rootHandler = new HttpTracerHandler();
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="T:HttpTracer.HttpHandlerBuilder"/> class.
-        /// </summary>
         /// <param name="logger">Logger.</param>
-        public HttpHandlerBuilder(ILogger logger)
+        public HttpHandlerBuilder(ILogger logger = null)
         {
-            _rootHandler = new HttpTracerHandler(logger);
+            _rootHandler = new HttpTracerHandler(null, logger);
         }
 
         /// <summary>
