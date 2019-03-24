@@ -12,37 +12,14 @@ namespace HttpTracer
         private const string LogMessageIndicatorSuffix = "====================";
 
         /// <summary>
-        /// Constructs the <see cref="HttpTracerHandler"/> with a custom <see cref="HttpMessageHandler"/> and the default <see cref="DebugLogger"/>
-        /// </summary>
-        /// <param name="handler">User defined <see cref="HttpMessageHandler"/></param>
-        public HttpTracerHandler(HttpMessageHandler handler) : this(handler, new DebugLogger())
-        {
-        }
-
-        /// <summary>
-        /// Constructs the <see cref="HttpTracerHandler"/> with a custom <see cref="ILogger"/> and the default <see cref="HttpClientHandler"/>
-        /// </summary>
-        /// <param name="logger">User defined <see cref="ILogger"/></param>
-        public HttpTracerHandler(ILogger logger) : this(new HttpClientHandler(), logger)
-        {
-        }
-
-        /// <summary>
-        /// Constructs the <see cref="HttpTracerHandler"/> with the default <see cref="HttpClientHandler"/> and the default <see cref="DebugLogger"/>
-        /// </summary>
-        public HttpTracerHandler() : this(new HttpClientHandler(), new DebugLogger())
-        {
-        }
-
-        /// <summary>
         /// Constructs the <see cref="HttpTracerHandler"/> with a custom <see cref="ILogger"/> and a custom <see cref="HttpMessageHandler"/>
         /// </summary>
         /// <param name="handler">User defined <see cref="HttpMessageHandler"/></param>
         /// <param name="logger">User defined <see cref="ILogger"/></param>
-        public HttpTracerHandler(HttpMessageHandler handler, ILogger logger)
+        public HttpTracerHandler(HttpMessageHandler handler = null, ILogger logger = null)
         {
-            InnerHandler = handler;
-            _logger = logger;
+            InnerHandler = handler ?? new HttpClientHandler();
+            _logger = logger ?? new DebugLogger();
         }
 
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
