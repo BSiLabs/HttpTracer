@@ -38,15 +38,8 @@ namespace HttpTracer
             }
         }
 
-        protected static Task<string> GetRequestContent(HttpRequestMessage request)
-            => request.Content.ReadAsStringAsync();
 
-
-        protected static Task<string> GetResponseContent(HttpResponseMessage response)
-            =>  response.Content.ReadAsStringAsync();
-
-
-        protected void LogHttpException(HttpRequestMessage request, Exception ex)
+        protected virtual void LogHttpException(HttpRequestMessage request, Exception ex)
         {
             var httpExceptionString = $@"{LogMessageIndicatorPrefix} HTTP EXCEPTION: [{request.Method}]{LogMessageIndicatorSuffix}
 [{request.Method}] {request.RequestUri}
@@ -54,10 +47,10 @@ namespace HttpTracer
             _logger.Log(httpExceptionString);
         }
 
-        protected async Task LogHttpRequest(HttpRequestMessage request)
+        protected virtual async Task LogHttpRequest(HttpRequestMessage request)
         {
             var requestContent = string.Empty;
-            if (request?.Content != null) requestContent = await GetRequestContent(request).ConfigureAwait(false);
+            if (request?.Content != null) requestContent = await request.Content.ReadAsStringAsync().ConfigureAwait(false);
 
             var httpLogString = $@"{LogMessageIndicatorPrefix}HTTP REQUEST: [{request?.Method}]{LogMessageIndicatorSuffix}
 {request?.Method} {request?.RequestUri}
@@ -71,10 +64,11 @@ content-type: application/json
             _logger.Log(httpLogString);
         }
 
-        protected async Task LogHttpResponse(HttpResponseMessage response)
+
+        protected virtual async Task LogHttpResponse(HttpResponseMessage response)
         {
             var responseContent = string.Empty;
-            if (response?.Content != null) responseContent = await GetResponseContent(response).ConfigureAwait(false);
+            if (response?.Content != null) responseContent = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
 
             const string succeeded = "SUCCEEDED";
             const string failed = "FAILED";
