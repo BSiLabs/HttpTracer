@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
@@ -70,7 +71,7 @@ namespace HttpTracer
             _logger.Log(httpRequestString);
         }
 
-        protected virtual async Task LogHttpResponse(HttpResponseMessage response long elapsedMilliseconds)
+        protected virtual async Task LogHttpResponse(HttpResponseMessage response, long elapsedMilliseconds)
         {
             if (Verbosity >= LogLevel.Critical && response.IsSuccessStatusCode) return;
             
