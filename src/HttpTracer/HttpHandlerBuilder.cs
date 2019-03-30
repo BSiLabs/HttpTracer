@@ -14,22 +14,13 @@ namespace HttpTracer
         /// Underlying instance of the <see cref="T:HttpTracer.HttpHandlerBuilder"/> class.
         /// </summary>
         public HttpTracerHandler HttpTracerHandler => _rootHandler;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="T:HttpTracer.HttpHandlerBuilder"/> class.
-        /// </summary>
-        public HttpHandlerBuilder()
-        {
-            _rootHandler = new HttpTracerHandler();
-        }
-
-        /// <summary>
+        
         /// Initializes a new instance of the <see cref="T:HttpTracer.HttpHandlerBuilder"/> class.
         /// </summary>
         /// <param name="logger">Logger.</param>
-        public HttpHandlerBuilder(ILogger logger)
+        public HttpHandlerBuilder(ILogger logger = null)
         {
-            _rootHandler = new HttpTracerHandler(logger);
+            _rootHandler = new HttpTracerHandler(null, logger);
         }
 
         /// <summary>
@@ -50,8 +41,8 @@ namespace HttpTracer
         {
             if (handler is HttpTracerHandler) throw new ArgumentException($"Can't add handler of type {nameof(HttpTracerHandler)}.");
 
-            if (_handlersList.LastOrDefault() is DelegatingHandler delegatingHandler)
-                delegatingHandler.InnerHandler = handler;
+            if (_handlersList.Any())
+                ((DelegatingHandler)_handlersList.LastOrDefault()).InnerHandler = handler;
 
             _handlersList.Add(handler);
             return this;
@@ -63,10 +54,11 @@ namespace HttpTracer
         /// <returns></returns>
         public HttpMessageHandler Build()
         {
-            if (!_handlersList.Any()) return _rootHandler;
-            
-            if (_handlersList.LastOrDefault() is DelegatingHandler delegatingHandler)
-                delegatingHandler.InnerHandler = _rootHandler;
+            if (_handlersList.Any())
+                ((DelegatingHandler)_handlersList.LastOrDefault()).InnerHandler = _rootHandler;
+            else
+                return _rootHandler;
+
             return _handlersList.FirstOrDefault();
         }
 

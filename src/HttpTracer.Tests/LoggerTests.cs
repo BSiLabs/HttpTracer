@@ -21,7 +21,7 @@ namespace HttpTracer.Tests
 
         public class FakeHttpTraceHandler : HttpTracerHandler
         {
-            public FakeHttpTraceHandler(ILogger logger) : base(logger) {}
+            public FakeHttpTraceHandler(ILogger logger) : base(null, logger) {}
 
             protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
             {

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
@@ -25,37 +24,14 @@ namespace HttpTracer
         public static string LogMessageIndicatorSuffix = MessageIndicator;
 
         /// <summary>
-        /// Constructs the <see cref="HttpTracerHandler"/> with a custom <see cref="HttpMessageHandler"/> and the default <see cref="ConsoleLogger"/>
-        /// </summary>
-        /// <param name="handler">User defined <see cref="HttpMessageHandler"/></param>
-        public HttpTracerHandler(HttpMessageHandler handler) : this(handler, new ConsoleLogger())
-        {
-        }
-
-        /// <summary>
-        /// Constructs the <see cref="HttpTracerHandler"/> with a custom <see cref="ILogger"/> and the default <see cref="HttpClientHandler"/>
-        /// </summary>
-        /// <param name="logger">User defined <see cref="ILogger"/></param>
-        public HttpTracerHandler(ILogger logger) : this(new HttpClientHandler(), logger)
-        {
-        }
-
-        /// <summary>
-        /// Constructs the <see cref="HttpTracerHandler"/> with the default <see cref="HttpClientHandler"/> and the default <see cref="ConsoleLogger"/>
-        /// </summary>
-        public HttpTracerHandler() : this(new HttpClientHandler())
-        {
-        }
-
-        /// <summary>
         /// Constructs the <see cref="HttpTracerHandler"/> with a custom <see cref="ILogger"/> and a custom <see cref="HttpMessageHandler"/>
         /// </summary>
         /// <param name="handler">User defined <see cref="HttpMessageHandler"/></param>
         /// <param name="logger">User defined <see cref="ILogger"/></param>
-        public HttpTracerHandler(HttpMessageHandler handler, ILogger logger)
+        public HttpTracerHandler(HttpMessageHandler handler = null, ILogger logger = null)
         {
-            InnerHandler = handler;
-            _logger = logger;
+            InnerHandler = handler ?? new HttpClientHandler();
+            _logger = logger ?? new ConsoleLogger();
         }
 
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
@@ -92,11 +68,9 @@ namespace HttpTracer
             }
 
             _logger.Log(httpRequestString);
-
-            _logger.Log(httpRequestString);
         }
 
-        protected async Task LogHttpResponse(HttpResponseMessage response, long elapsedMilliseconds)
+        protected virtual async Task LogHttpResponse(HttpResponseMessage response long elapsedMilliseconds)
         {
             if (Verbosity >= LogLevel.Critical && response.IsSuccessStatusCode) return;
             

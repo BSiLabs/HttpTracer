@@ -1,4 +1,4 @@
-namespace HttpTracer
+﻿namespace HttpTracer
 {
     public interface ILogger
     {
