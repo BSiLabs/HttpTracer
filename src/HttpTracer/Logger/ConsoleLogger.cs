@@ -1,6 +1,6 @@
 using System;
 
-namespace HttpTracer
+namespace HttpTracer.Logger
 {
     public class ConsoleLogger : ILogger
     {

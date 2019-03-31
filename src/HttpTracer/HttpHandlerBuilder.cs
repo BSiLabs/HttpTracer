@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using HttpTracer.Logger;
 
 namespace HttpTracer
 {
@@ -67,7 +68,7 @@ namespace HttpTracer
         /// </summary>
         /// <param name="verbosity"></param>
         /// <returns></returns>
-        public HttpHandlerBuilder SetHttpTracerVerbosity(LogLevel verbosity)
+        public HttpHandlerBuilder SetHttpTracerVerbosity(HttpMessageParts verbosity)
         {
             _rootHandler.Verbosity = verbosity;
             return this;

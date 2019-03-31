@@ -1,12 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFrameworks>netstandard2.0;netstandard1.4</TargetFrameworks>
+        <TargetFrameworks>netstandard2.0;netstandard1.4;Xamarin.iOS;MonoAndroid81</TargetFrameworks>
+        <TargetFrameworks Condition=" '$(OS)' == 'Windows_NT' ">${TargetFrameworks};net451;uap10.0.16299</TargetFrameworks>
         <Product>$(AssemblyName) ($(TargetFramework))</Product>
-        <AssemblyVersion>1.0.1.0</AssemblyVersion>
-        <AssemblyFileVersion>1.0.1.0</AssemblyFileVersion>
-        <Version>1.0.1.0</Version>
-        <PackageVersion>1.0.1.0</PackageVersion>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <AssemblyFileVersion>1.0.0.0</AssemblyFileVersion>
+        <Version>1.0.0.0</Version>
+        <PackageVersion>1.0.0.0</PackageVersion>
         <Authors>Dylan Berry; Daniel Causer; Chase Florell</Authors>
         <PackageId>HttpTracer</PackageId>
 
@@ -32,5 +33,14 @@
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
     </PropertyGroup>
-
+    
+    <ItemGroup>
+        <PackageReference Include="MSBuild.Sdk.Extras" Version="1.6.68" PrivateAssets="All" />
+        <Compile Include="**\*.shared.cs" />
+    </ItemGroup>
+    
+    <ItemGroup>
+      <Folder Include="Logger" />
+    </ItemGroup>
+    <Import Project="$(MSBuildSDKExtrasTargets)" Condition="Exists('$(MSBuildSDKExtrasTargets)')" />
 </Project>

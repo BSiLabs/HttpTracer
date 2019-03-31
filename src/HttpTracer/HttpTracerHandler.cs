@@ -3,20 +3,13 @@ using System.Diagnostics;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using HttpTracer.Logger;
 
 namespace HttpTracer
 {
     public class HttpTracerHandler : DelegatingHandler
     {
-        /// <summary>
-        /// Sets the verbosity for the HttpTracer logging
-        /// Trace - full requests and responses for all http requests
-        /// Debug - full requests, responses without body
-        /// Information - full request and response for errors, request and response method/url/header for all requests
-        /// Critical - full request and response for errors
-        /// Error - request method/url/header and full response for errors only
-        /// </summary>
-        public LogLevel Verbosity { get; set; } = LogLevel.Trace;
+        public HttpMessageParts Verbosity { get; set; } = HttpMessageParts.All;
         
         private readonly ILogger _logger;
         
@@ -40,116 +33,124 @@ namespace HttpTracer
             try
             {
                 await LogHttpRequest(request).ConfigureAwait(false);
+                
                 var stopwatch = new Stopwatch();
                 stopwatch.Start();
                 var response = await base.SendAsync(request, cancellationToken).ConfigureAwait(false);
                 stopwatch.Stop();
+                
+                if (!response.IsSuccessStatusCode) await LogHttpErrorRequest(request);
+                
                 await LogHttpResponse(response, stopwatch.ElapsedMilliseconds).ConfigureAwait(false);
                 return response;
             }
             catch (Exception ex)
             {
-                LogHttpException(request, ex).FireAndForget();
+                LogHttpException(request, ex);
                 throw;
             }
         }
 
-        protected async Task LogHttpRequest(HttpRequestMessage request)
+        private async Task LogHttpErrorRequest(HttpRequestMessage request)
         {
-            if (Verbosity > LogLevel.Information) return;
+            var httpErrorRequestPrefix =
+                $"{LogMessageIndicatorPrefix}HTTP ERROR REQUEST: [{request?.Method}]{LogMessageIndicatorSuffix}";
+            _logger.Log(httpErrorRequestPrefix);
             
-            string httpRequestString;
-            if (Verbosity <= LogLevel.Debug)
+            var httpErrorRequestHeaders = GetRequestHeaders(request);
+            _logger.Log(httpErrorRequestHeaders);
+            
+            var httpErrorRequestBody = await GetRequestBody(request);
+            _logger.Log(httpErrorRequestBody);
+        }
+
+        protected virtual async Task LogHttpRequest(HttpRequestMessage request)
+        {
+            if (Verbosity.HasFlag(HttpMessageParts.RequestHeaders) || Verbosity.HasFlag(HttpMessageParts.RequestBody))
             {
-                httpRequestString = await GetFullRequestString(request);
-            }
-            else
-            {
-                httpRequestString = GetSimpleRequestString(request);
+                var httpRequestPrefix =
+                    $"{LogMessageIndicatorPrefix}HTTP REQUEST: [{request?.Method}]{LogMessageIndicatorSuffix}";
+                _logger.Log(httpRequestPrefix);
             }
 
-            _logger.Log(httpRequestString);
+            if (Verbosity.HasFlag(HttpMessageParts.RequestHeaders))
+            {
+                var httpErrorRequestHeaders = GetRequestHeaders(request);
+                _logger.Log(httpErrorRequestHeaders);
+            }
+
+            if (Verbosity.HasFlag(HttpMessageParts.RequestBody))
+            {
+                var httpErrorRequestBody = await GetRequestBody(request);
+                _logger.Log(httpErrorRequestBody);
+            }
         }
 
         protected virtual async Task LogHttpResponse(HttpResponseMessage response, long elapsedMilliseconds)
         {
-            if (Verbosity >= LogLevel.Critical && response.IsSuccessStatusCode) return;
-            
-            var responseContent = string.Empty;
-            if (response?.Content != null)
+            if (Verbosity.HasFlag(HttpMessageParts.ResponseHeaders) || Verbosity.HasFlag(HttpMessageParts.ResponseBody))
             {
-                if (Verbosity == LogLevel.Trace || (!response.IsSuccessStatusCode && Verbosity < LogLevel.Error)) 
-                    responseContent = await GetResponseContent(response).ConfigureAwait(false);
+                var responseResult = GetResponseLogHeading(response);
+
+                var httpResponsePrefix =
+                    $@"{LogMessageIndicatorPrefix}HTTP RESPONSE: [{responseResult}]{LogMessageIndicatorSuffix}";
+                _logger.Log(httpResponsePrefix);
             }
 
+            if (Verbosity.HasFlag(HttpMessageParts.ResponseHeaders))
+            {
+                var httpResponseHeaders = $@"
+{response?.RequestMessage?.Method} {response?.RequestMessage?.RequestUri}
+HttpResponse: {response}";
+                _logger.Log(httpResponseHeaders);
+            }
+
+            if (Verbosity.HasFlag(HttpMessageParts.ResponseBody))
+            {
+                var responseContent = await GetResponseBody(response).ConfigureAwait(false);
+
+                var httpResponseContent =
+                    $@"
+HttpResponse.Content: 
+{responseContent}";
+                _logger.Log(httpResponseContent);
+            }
+
+            if (Verbosity.HasFlag(HttpMessageParts.ResponseHeaders) || Verbosity.HasFlag(HttpMessageParts.ResponseBody))
+            {
+                var httpResponsePostfix = $"{elapsedMilliseconds}ms";
+                _logger.Log(httpResponsePostfix);
+            }
+        }
+
+        private string GetResponseLogHeading(HttpResponseMessage response)
+        {
             const string succeeded = "SUCCEEDED";
             const string failed = "FAILED";
 
-            var responseResult = response == null ? failed : (response.IsSuccessStatusCode ? $"{succeeded}: {(int)response.StatusCode} {response.StatusCode}" : $"{failed}: {(int)response.StatusCode} {response.StatusCode}");
-
-            var httpLogString =
-                $@"{LogMessageIndicatorPrefix}HTTP RESPONSE: [{responseResult}]{LogMessageIndicatorSuffix}
-{response?.RequestMessage?.Method} {response?.RequestMessage?.RequestUri}
-HttpResponse: {response}";
-
-            if (Verbosity == LogLevel.Trace)
-            {
-                httpLogString +=
-                    $@"
-HttpResponse.Content: 
-{responseContent}
-{elapsedMilliseconds}ms";
-            }
-
-            _logger.Log(httpLogString);
+            var responseResult = response == null
+                ? failed
+                : (response.IsSuccessStatusCode
+                    ? $"{succeeded}: {(int) response.StatusCode} {response.StatusCode}"
+                    : $"{failed}: {(int) response.StatusCode} {response.StatusCode}");
+            return responseResult;
         }
 
-        protected async Task LogHttpException(HttpRequestMessage request, Exception ex)
+        protected void LogHttpException(HttpRequestMessage request, Exception ex)
         {
-            string httpRequestString;
-            if (Verbosity < LogLevel.Error)
-            {
-                httpRequestString = await GetFullRequestString(request);
-            }
-            else
-            {
-                httpRequestString = GetSimpleRequestString(request);
-            }
-
-            _logger.Log(httpRequestString);
-            
-            var httpExceptionString = $@"{LogMessageIndicatorPrefix}HTTP EXCEPTION: [{request.Method}]{LogMessageIndicatorSuffix}
+            var httpExceptionString = $@"{LogMessageIndicatorPrefix} HTTP EXCEPTION: [{request.Method}]{LogMessageIndicatorSuffix}
 {request.Method} {request.RequestUri}
 {ex}";
             _logger.Log(httpExceptionString);
         }
 
-        private static async Task<string> GetFullRequestString(HttpRequestMessage request)
-        {
-            var httpLogString = GetSimpleRequestString(request);
-            httpLogString += await GetRequestBodyString(request);
-            return httpLogString;
-        }
-
-        private static string GetSimpleRequestString(HttpRequestMessage request)
-        {
-            var httpLogString =
-                $@"{LogMessageIndicatorPrefix}HTTP REQUEST: [{request?.Method}]{LogMessageIndicatorSuffix}
-{request?.Method} {request?.RequestUri}
+        private string GetRequestHeaders(HttpRequestMessage request) =>
+            !Verbosity.HasFlag(HttpMessageParts.RequestHeaders) ? string.Empty : $@"{request?.Method} {request?.RequestUri}
 {request?.Headers.ToString().TrimEnd()}
 ";
-            return httpLogString;
-        }
 
-        private static async Task<string> GetRequestBodyString(HttpRequestMessage request)
-        {
-            var requestContent = string.Empty;
-            if (request?.Content != null) requestContent = await GetRequestContent(request).ConfigureAwait(false);
-            return requestContent;
-        }
+        protected Task<string> GetRequestBody(HttpRequestMessage request) => request?.Content?.ReadAsStringAsync() ?? Task.FromResult(string.Empty);
 
-        protected static Task<string> GetRequestContent(HttpRequestMessage request) =>  request.Content.ReadAsStringAsync();
-
-        protected static Task<string> GetResponseContent(HttpResponseMessage response) => response.Content.ReadAsStringAsync();
+        protected Task<string> GetResponseBody(HttpResponseMessage response) => response?.Content?.ReadAsStringAsync() ?? Task.FromResult(string.Empty);
     }
 }
