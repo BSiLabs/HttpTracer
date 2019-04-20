@@ -8,7 +8,7 @@ namespace HttpTracer
 {
     public class HttpHandlerBuilder
     {
-        private readonly IList<HttpMessageHandler> _handlersList = new List<HttpMessageHandler>();
+        private readonly IList<DelegatingHandler> _handlersList = new List<DelegatingHandler>();
         private readonly HttpTracerHandler _rootHandler;
 
         /// <summary>
@@ -50,13 +50,13 @@ namespace HttpTracer
         }
 
         /// <summary>
-        /// Adds <see cref="HttpTracerHandler"/> as the last link of the chain.
+        /// Adds <see cref="DelegatingHandler"/> as the last link of the chain.
         /// </summary>
         /// <returns></returns>
-        public HttpMessageHandler Build()
+        public DelegatingHandler Build()
         {
             if (_handlersList.Any())
-                ((DelegatingHandler)_handlersList.LastOrDefault()).InnerHandler = _rootHandler;
+                _handlersList.LastOrDefault().InnerHandler = _rootHandler;
             else
                 return _rootHandler;
 
