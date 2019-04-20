@@ -4,6 +4,7 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using HttpTracer.Logger;
+using System.Text;
 
 namespace HttpTracer
 {
@@ -53,56 +54,61 @@ namespace HttpTracer
 
         private async Task LogHttpErrorRequest(HttpRequestMessage request)
         {
+            var sb = new StringBuilder();
             var httpErrorRequestPrefix =
                 $"{LogMessageIndicatorPrefix}HTTP ERROR REQUEST: [{request?.Method}]{LogMessageIndicatorSuffix}";
-            _logger.Log(httpErrorRequestPrefix);
+            sb.AppendLine(httpErrorRequestPrefix);
             
             var httpErrorRequestHeaders = GetRequestHeaders(request);
-            _logger.Log(httpErrorRequestHeaders);
+            sb.AppendLine(httpErrorRequestHeaders);
             
             var httpErrorRequestBody = await GetRequestBody(request);
-            _logger.Log(httpErrorRequestBody);
+            sb.AppendLine(httpErrorRequestBody);
+            _logger.Log(sb.ToString());
         }
 
         protected virtual async Task LogHttpRequest(HttpRequestMessage request)
         {
+            var sb = new StringBuilder();
             if (Verbosity.HasFlag(HttpMessageParts.RequestHeaders) || Verbosity.HasFlag(HttpMessageParts.RequestBody))
             {
                 var httpRequestPrefix =
                     $"{LogMessageIndicatorPrefix}HTTP REQUEST: [{request?.Method}]{LogMessageIndicatorSuffix}";
-                _logger.Log(httpRequestPrefix);
+                sb.AppendLine(httpRequestPrefix);
             }
 
             if (Verbosity.HasFlag(HttpMessageParts.RequestHeaders))
             {
                 var httpErrorRequestHeaders = GetRequestHeaders(request);
-                _logger.Log(httpErrorRequestHeaders);
+                sb.AppendLine(httpErrorRequestHeaders);
             }
 
             if (Verbosity.HasFlag(HttpMessageParts.RequestBody))
             {
                 var httpErrorRequestBody = await GetRequestBody(request);
-                _logger.Log(httpErrorRequestBody);
+                sb.AppendLine(httpErrorRequestBody);
             }
+            _logger.Log(sb.ToString());
         }
 
         protected virtual async Task LogHttpResponse(HttpResponseMessage response, long elapsedMilliseconds)
         {
+            var sb = new StringBuilder();
             if (Verbosity.HasFlag(HttpMessageParts.ResponseHeaders) || Verbosity.HasFlag(HttpMessageParts.ResponseBody))
             {
                 var responseResult = GetResponseLogHeading(response);
 
                 var httpResponsePrefix =
                     $@"{LogMessageIndicatorPrefix}HTTP RESPONSE: [{responseResult}]{LogMessageIndicatorSuffix}";
-                _logger.Log(httpResponsePrefix);
+                sb.AppendLine(httpResponsePrefix);
             }
 
             if (Verbosity.HasFlag(HttpMessageParts.ResponseHeaders))
             {
                 var httpResponseHeaders = $@"
 {response?.RequestMessage?.Method} {response?.RequestMessage?.RequestUri}
-HttpResponse: {response}";
-                _logger.Log(httpResponseHeaders);
+{response}";
+                sb.AppendLine(httpResponseHeaders);
             }
 
             if (Verbosity.HasFlag(HttpMessageParts.ResponseBody))
@@ -111,16 +117,16 @@ HttpResponse: {response}";
 
                 var httpResponseContent =
                     $@"
-HttpResponse.Content: 
 {responseContent}";
-                _logger.Log(httpResponseContent);
+                sb.AppendLine(httpResponseContent);
             }
 
             if (Verbosity.HasFlag(HttpMessageParts.ResponseHeaders) || Verbosity.HasFlag(HttpMessageParts.ResponseBody))
             {
                 var httpResponsePostfix = $"{elapsedMilliseconds}ms";
-                _logger.Log(httpResponsePostfix);
+                sb.AppendLine(httpResponsePostfix);
             }
+            _logger.Log(sb.ToString());
         }
 
         private string GetResponseLogHeading(HttpResponseMessage response)
@@ -128,11 +134,13 @@ HttpResponse.Content:
             const string succeeded = "SUCCEEDED";
             const string failed = "FAILED";
 
-            var responseResult = response == null
-                ? failed
-                : (response.IsSuccessStatusCode
+            string responseResult;
+            if (response == null)
+                responseResult = failed;
+            else
+                responseResult = response.IsSuccessStatusCode
                     ? $"{succeeded}: {(int) response.StatusCode} {response.StatusCode}"
-                    : $"{failed}: {(int) response.StatusCode} {response.StatusCode}");
+                    : $"{failed}: {(int) response.StatusCode} {response.StatusCode}";
             return responseResult;
         }
 

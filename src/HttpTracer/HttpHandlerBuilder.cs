@@ -15,7 +15,8 @@ namespace HttpTracer
         /// Underlying instance of the <see cref="T:HttpTracer.HttpHandlerBuilder"/> class.
         /// </summary>
         public HttpTracerHandler HttpTracerHandler => _rootHandler;
-        
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="T:HttpTracer.HttpHandlerBuilder"/> class.
         /// </summary>
         /// <param name="logger">Logger.</param>
@@ -43,7 +44,7 @@ namespace HttpTracer
             if (handler is HttpTracerHandler) throw new ArgumentException($"Can't add handler of type {nameof(HttpTracerHandler)}.");
 
             if (_handlersList.Any())
-                ((DelegatingHandler)_handlersList.LastOrDefault()).InnerHandler = handler;
+                _handlersList.LastOrDefault().InnerHandler = handler;
 
             _handlersList.Add(handler);
             return this;
