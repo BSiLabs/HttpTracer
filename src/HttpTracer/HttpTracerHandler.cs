@@ -10,10 +10,17 @@ namespace HttpTracer
 {
     public class HttpTracerHandler : DelegatingHandler
     {
-        public HttpMessageParts Verbosity { get; set; } = HttpMessageParts.All;
-        
+        public static HttpMessageParts DefaultVerbosity { get; set; } = HttpMessageParts.All;
+
+        private HttpMessageParts _verbosity = HttpMessageParts.Unspecified;
+        public HttpMessageParts Verbosity
+        {
+            get => _verbosity == HttpMessageParts.Unspecified ? DefaultVerbosity : _verbosity;
+            set => _verbosity = value;
+        }
+
         private readonly ILogger _logger;
-        
+
         private const string MessageIndicator = " ==================== ";
         public static string LogMessageIndicatorPrefix = MessageIndicator;
         public static string LogMessageIndicatorSuffix = MessageIndicator;

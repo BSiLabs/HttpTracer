@@ -5,7 +5,7 @@ namespace HttpTracer
     [Flags]
     public enum HttpMessageParts
     {
-        Unknown = 0,
+        Unspecified = 0,
         None = 1,
 
         RequestBody = 2,

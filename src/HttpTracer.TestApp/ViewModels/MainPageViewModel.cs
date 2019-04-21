@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using HttpTracer.Logger;
 using Xamarin.Forms;
 
 namespace HttpTracer.TestApp.ViewModels
@@ -41,6 +42,7 @@ namespace HttpTracer.TestApp.ViewModels
             try
             {
                 var result = await client.GetAsync("https://uinames.com/api?ext&amount=25");
+                Console.WriteLine(result);
             }
             catch (Exception e)
             {
@@ -57,6 +59,7 @@ namespace HttpTracer.TestApp.ViewModels
             try
             {
                 var result = await client.GetAsync("https://uinames.com/api?ext&amount=25");
+                Console.WriteLine(result);
             }
             catch (Exception e)
             {
