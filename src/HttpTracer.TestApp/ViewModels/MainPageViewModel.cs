@@ -17,6 +17,9 @@ namespace HttpTracer.TestApp.ViewModels
 {
     public class MainPageViewModel : ViewModelBase
     {
+        private const HttpMessageParts DefaultHttpTracerVerbosity =
+            HttpMessageParts.RequestAll | HttpMessageParts.ResponseHeaders;
+        
         public ICommand ButtonClickCommand
         {
             get { return new Command(async () => { await ButtonClick(); }); }
@@ -35,7 +38,7 @@ namespace HttpTracer.TestApp.ViewModels
 
         private async Task ButtonClick()
         {
-            var client = new HttpClient(new HttpTracerHandler(null, new Logger.DebugLogger()));
+            var client = new HttpClient(new HttpTracerHandler(null, new Logger.DebugLogger(), DefaultHttpTracerVerbosity));
             client.DefaultRequestHeaders.Add("Authorization", "Bearer ThisIsProbablyNotAValidJwt");
             client.DefaultRequestHeaders.Add("client-version", "1.0.0");
             client.DefaultRequestHeaders.Add("custom-header", "Hi Mark");
@@ -51,7 +54,7 @@ namespace HttpTracer.TestApp.ViewModels
 
         private async Task TraceFileClick()
         {
-            var client = new HttpClient(new HttpTracerHandler(null, new MyLogger()));
+            var client = new HttpClient(new HttpTracerHandler(null, new MyLogger(), DefaultHttpTracerVerbosity));
             client.DefaultRequestHeaders.Add("Authorization", "Bearer ThisIsProbablyNotAValidJwt");
             client.DefaultRequestHeaders.Add("client-version", "1.0.0");
             client.DefaultRequestHeaders.Add("custom-header", "Hi Mark");

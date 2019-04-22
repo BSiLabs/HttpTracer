@@ -56,6 +56,13 @@ public async Task GetMyData()
     var result = await client.GetAsync("http://myserviceurl.com");
 }
 ```
+You can use bitwise operators to combine your desired `HttpMessagePart` options:
+
+```csharp
+private const HttpMessageParts DefaultHttpTracerVerbosity =
+            HttpMessageParts.RequestAll | HttpMessageParts.ResponseHeaders;
+```
+You can set the verbosity for all of your `HttpTracerHandler` instances by setting `HttpTracerHandler.DefaultVerbosity`. To set verbosity at the per-instance level, use `HttpTracerHandler.Verbosity` which will override `HttpTracerHandler.DefaultVerbosity`.
 
 ### License
 Under MIT (see license file)
