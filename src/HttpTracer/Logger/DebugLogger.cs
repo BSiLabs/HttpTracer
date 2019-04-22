@@ -1,7 +1,6 @@
-﻿using System;
 using System.Diagnostics;
 
-namespace HttpTracer
+namespace HttpTracer.Logger
 {
     public class DebugLogger : ILogger
     {

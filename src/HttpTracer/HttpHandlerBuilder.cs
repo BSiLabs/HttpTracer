@@ -1,14 +1,20 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using HttpTracer.Logger;
 
 namespace HttpTracer
 {
     public class HttpHandlerBuilder
     {
-        private readonly IList<HttpMessageHandler> _handlersList = new List<HttpMessageHandler>();
+        private readonly IList<DelegatingHandler> _handlersList = new List<DelegatingHandler>();
         private readonly HttpTracerHandler _rootHandler;
+
+        /// <summary>
+        /// Underlying instance of the <see cref="T:HttpTracer.HttpHandlerBuilder"/> class.
+        /// </summary>
+        public HttpTracerHandler HttpTracerHandler => _rootHandler;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="T:HttpTracer.HttpHandlerBuilder"/> class.
@@ -33,29 +39,40 @@ namespace HttpTracer
         /// </summary>
         /// <param name="handler"></param>
         /// <returns></returns>
-        public HttpHandlerBuilder AddHandler(HttpMessageHandler handler)
+        public HttpHandlerBuilder AddHandler(DelegatingHandler handler)
         {
             if (handler is HttpTracerHandler) throw new ArgumentException($"Can't add handler of type {nameof(HttpTracerHandler)}.");
 
             if (_handlersList.Any())
-                ((DelegatingHandler)_handlersList.LastOrDefault()).InnerHandler = handler;
+                _handlersList.LastOrDefault().InnerHandler = handler;
 
             _handlersList.Add(handler);
             return this;
         }
 
         /// <summary>
-        /// Adds <see cref="HttpTracerHandler"/> as the last link of the chain.
+        /// Adds <see cref="DelegatingHandler"/> as the last link of the chain.
         /// </summary>
         /// <returns></returns>
-        public HttpMessageHandler Build()
+        public DelegatingHandler Build()
         {
             if (_handlersList.Any())
-                ((DelegatingHandler)_handlersList.LastOrDefault()).InnerHandler = _rootHandler;
+                _handlersList.LastOrDefault().InnerHandler = _rootHandler;
             else
                 return _rootHandler;
 
             return _handlersList.FirstOrDefault();
+        }
+
+        /// <summary>
+        /// Sets the verbosity for the underlying <see cref="HttpTracerHandler"/>
+        /// </summary>
+        /// <param name="verbosity"></param>
+        /// <returns></returns>
+        public HttpHandlerBuilder SetHttpTracerVerbosity(HttpMessageParts verbosity)
+        {
+            _rootHandler.Verbosity = verbosity;
+            return this;
         }
     }
 }

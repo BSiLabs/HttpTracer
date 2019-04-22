@@ -1,5 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HttpTracer.Tests", "HttpTracer.Tests\HttpTracer.Tests.csproj", "{63AE3BD4-91D8-48E0-B383-DB2D6877C1CA}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HttpTracer", "HttpTracer\HttpTracer.csproj", "{30B42FA4-8BAF-484E-99A5-C5743562C0EA}"

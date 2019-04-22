@@ -4,7 +4,8 @@ A simple http tracing library to write request and response information to your 
 |Channel|Status|
 | ------------------- | :------------------: |
 |Build|[![Build status](https://burstingsilver.visualstudio.com/BSiLabs/_apis/build/status/HttpTracer)](https://burstingsilver.visualstudio.com/BSiLabs/_build/latest?definitionId=78)|
-|NuGet.org |[![#](https://img.shields.io/nuget/v/httptracer.svg?style=flat)](https://www.nuget.org/packages/HttpTracer/)|
+|MyGet.org|[![#](https://img.shields.io/myget/httptracer-preview/v/HttpTracer.svg)](https://www.myget.org/feed/httptracer-preview/package/nuget/HttpTracer)|
+|NuGet.org|[![#](https://img.shields.io/nuget/v/httptracer.svg?style=flat)](https://www.nuget.org/packages/HttpTracer/)|
 
 ![](https://danielcauserblog.files.wordpress.com/2018/04/tracer_tracing_get1.gif)
 
@@ -30,6 +31,7 @@ using HttpTracer;
 public async Task GetMyData()
 {
     var tracer = new HttpTracerHandler();
+    tracer.Verbosity = LogLevel.Information;
     var client = new HttpClient(tracer);
     var result = await client.GetAsync("http://myserviceurl.com");
 }
@@ -47,10 +49,20 @@ public async Task GetMyData()
            .AddHandler(new MyHandler2())
            .AddHandler(new MyHandler1());
            
-    var client = new HttpClient(builder.Build());
+    var tracer = builder.Build();
+    tracer.Verbosity = LogLevel.Information;
+    
+    var client = new HttpClient(tracer);
     var result = await client.GetAsync("http://myserviceurl.com");
 }
 ```
+You can use bitwise operators to combine your desired `HttpMessagePart` options:
+
+```csharp
+private const HttpMessageParts DefaultHttpTracerVerbosity =
+            HttpMessageParts.RequestAll | HttpMessageParts.ResponseHeaders;
+```
+You can set the verbosity for all of your `HttpTracerHandler` instances by setting `HttpTracerHandler.DefaultVerbosity`. To set verbosity at the per-instance level, use `HttpTracerHandler.Verbosity` which will override `HttpTracerHandler.DefaultVerbosity`.
 
 ### License
 Under MIT (see license file)

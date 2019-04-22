@@ -1,49 +1,10 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Net.Http;
-using System.Runtime.ExceptionServices;
-using System.Threading;
-using System.Threading.Tasks;
+using HttpTracer.Tests.Fakes;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace HttpTracer.Tests
 {
-    public class MyHandler1 : DelegatingHandler
-    {
-        public MyHandler1()
-        {
-            InnerHandler = new HttpClientHandler();
-        }
-        protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,
-            CancellationToken cancellationToken)
-        {
-            await Task.Delay(1, cancellationToken);
-
-            request.Headers.Add("SILLY-HEADER", "SILLY VALUE");
-
-            Debug.WriteLine("HI I'M MyHandler1");
-
-            await base.SendAsync(request, cancellationToken).ConfigureAwait(false);
-
-            return new HttpResponseMessage();
-
-        }
-    }
-
-    public class MyHandler3 : DelegatingHandler
-    {
-        protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,
-            CancellationToken cancellationToken)
-        {
-            await Task.Delay(1, cancellationToken);
-            request.Headers.Add("SILLY-HEADER-3", "SILLY VALUE 3");
-
-            await base.SendAsync(request, cancellationToken).ConfigureAwait(false);
-
-            return new HttpResponseMessage();
-        }
-    }
-
     [TestClass]
     public class BuilderTests
     {
@@ -51,9 +12,9 @@ namespace HttpTracer.Tests
         public void MakeSureHierarchyIsBuilt()
         {
             var builder = new HttpHandlerBuilder();
-            builder.AddHandler(new MyHandler3())
-                .AddHandler(new MyHandler1())
-                .AddHandler(new MyHandler3());
+            builder.AddHandler(new FakeHandler())
+                .AddHandler(new SillyHandler())
+                .AddHandler(new FakeHandler());
 
             var httpHandler = builder.Build();
             var first = ((DelegatingHandler)httpHandler).InnerHandler;
@@ -71,18 +32,18 @@ namespace HttpTracer.Tests
         public void MakeSureHierarchyIsBuiltWithCorrectType()
         {
             var builder = new HttpHandlerBuilder();
-            builder.AddHandler(new MyHandler3())
-                .AddHandler(new MyHandler1())
-                .AddHandler(new MyHandler3());
+            builder.AddHandler(new FakeHandler())
+                .AddHandler(new SillyHandler())
+                .AddHandler(new FakeHandler());
 
             var first = builder.Build();
             var second = ((DelegatingHandler)first).InnerHandler;
             var third = ((DelegatingHandler)second).InnerHandler;
             var fourth = ((DelegatingHandler)third).InnerHandler;
 
-            Assert.IsInstanceOfType(first, typeof(MyHandler3));
-            Assert.IsInstanceOfType(second, typeof(MyHandler1));
-            Assert.IsInstanceOfType(third, typeof(MyHandler3));
+            Assert.IsInstanceOfType(first, typeof(FakeHandler));
+            Assert.IsInstanceOfType(second, typeof(SillyHandler));
+            Assert.IsInstanceOfType(third, typeof(FakeHandler));
             Assert.IsInstanceOfType(fourth, typeof(HttpTracerHandler));
         }
 

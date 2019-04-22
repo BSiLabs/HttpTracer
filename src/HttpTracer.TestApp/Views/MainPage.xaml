@@ -7,6 +7,9 @@
     <StackLayout HorizontalOptions="CenterAndExpand" VerticalOptions="CenterAndExpand">
         <Label Text="Welcome to Xamarin Forms and Prism!" />
 
+        <Button x:Name="VerbosityButton" Text="Change HttpTracer Verbosity"
+                Clicked="VerbosityButton_OnClicked"/>
+        
         <Button Text="Dump trace to Console!"
                 Command="{Binding ButtonClickCommand}" />
 

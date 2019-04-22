@@ -1,36 +1,45 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-    <PropertyGroup>
-        <TargetFrameworks>netstandard2.0;netstandard1.4</TargetFrameworks>
-        <Product>$(AssemblyName) ($(TargetFramework))</Product>
-        <AssemblyVersion>1.0.1.0</AssemblyVersion>
-        <AssemblyFileVersion>1.0.1.0</AssemblyFileVersion>
-        <Version>1.0.1.0</Version>
-        <PackageVersion>1.0.1.0</PackageVersion>
-        <Authors>Dylan Berry; Daniel Causer; Chase Florell</Authors>
-        <PackageId>HttpTracer</PackageId>
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.0;netstandard1.4</TargetFrameworks>
+    <Product>$(AssemblyName) ($(TargetFramework))</Product>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <AssemblyFileVersion>1.0.0.0</AssemblyFileVersion>
+    <Version>1.0.0.0</Version>
+    <PackageVersion>1.0.0.0</PackageVersion>
+    <Authors>Dylan Berry; Daniel Causer; Chase Florell</Authors>
+    <PackageId>HttpTracer</PackageId>
 
-        <NeutralLanguage>en</NeutralLanguage>
-        <PackageLicenseUrl>https://github.com/BSiLabs/HttpTracer/blob/master/LICENSE</PackageLicenseUrl>
-        <Owners>Toronto Mobile .NET Developers Group</Owners>
-        <PackageProjectUrl>https://github.com/BSiLabs/HttpTracer</PackageProjectUrl>
-        <PackageIconUrl>https://raw.githubusercontent.com/BSiLabs/HttpTracer/master/art/HttpTracer.png</PackageIconUrl>
-        <Summary>A simple http tracing library to write request and response information to your output window. Making your life easier when debugging http calls!</Summary>
-        <PackageTags>xamarin, windows, ios, android, http, tracing</PackageTags>
-        <Title>HttpTracer - A Http tracking lib</Title>
-        <Description>A simple http tracing library to write request and response information to your output window. Making your life easier when debugging http calls!</Description>
-        <Copyright>2019 &amp; Toronto Mobile .NET Developers Group</Copyright>
-        <RepositoryUrl>https://github.com/BSiLabs/HttpTracer</RepositoryUrl>
-        <PackageReleaseNotes>See: https://github.com/BSiLabs/HttpTracer</PackageReleaseNotes>
-        <LangVersion>latest</LangVersion>
+    <NeutralLanguage>en</NeutralLanguage>
+    <PackageLicenseUrl>https://github.com/BSiLabs/HttpTracer/blob/master/LICENSE</PackageLicenseUrl>
+    <Owners>Toronto Mobile .NET Developers Group</Owners>
+    <PackageProjectUrl>https://github.com/BSiLabs/HttpTracer</PackageProjectUrl>
+    <PackageIconUrl>https://raw.githubusercontent.com/BSiLabs/HttpTracer/master/art/HttpTracer.png</PackageIconUrl>
+    <Summary>A simple http tracing library to write request and response information to your output window. Making your life easier when debugging http calls!</Summary>
+    <PackageTags>xamarin, windows, ios, android, http, tracing</PackageTags>
+    <Title>HttpTracer - A Http tracking lib</Title>
+    <Description>A simple http tracing library to write request and response information to your output window. Making your life easier when debugging http calls!</Description>
+    <Copyright>2019 &amp; Toronto Mobile .NET Developers Group</Copyright>
+    <RepositoryUrl>https://github.com/BSiLabs/HttpTracer</RepositoryUrl>
+    <PackageReleaseNotes>See: https://github.com/BSiLabs/HttpTracer</PackageReleaseNotes>
+    <LangVersion>latest</LangVersion>
 
-        <DefineConstants>$(DefineConstants);</DefineConstants>
-    </PropertyGroup>
+    <DefineConstants>$(DefineConstants);</DefineConstants>
+  </PropertyGroup>
 
-    <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-        <PackOnBuild>true</PackOnBuild>
-        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-        <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <PackOnBuild>true</PackOnBuild>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="MSBuild.Sdk.Extras" Version="1.6.68" PrivateAssets="All" />
+    <Compile Include="**\*.shared.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Logger" />
+  </ItemGroup>
+  <Import Project="$(MSBuildSDKExtrasTargets)" Condition="Exists('$(MSBuildSDKExtrasTargets)')" />
 </Project>

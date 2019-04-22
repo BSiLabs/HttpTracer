@@ -13,5 +13,19 @@ namespace HttpTracer.TestApp.Views
 		{
 			InitializeComponent ();
 		}
+
+		private async void VerbosityButton_OnClicked(object sender, EventArgs e)
+		{
+			var verbosityOptions = new string[]
+			{
+				HttpMessageParts.None.ToString(),
+				HttpMessageParts.All.ToString(),
+				HttpMessageParts.RequestAll.ToString(),
+				HttpMessageParts.ResponseAll.ToString()
+			};
+			string action = await DisplayActionSheet("Select Verbosity:", "Cancel", null, verbosityOptions);
+			if (action == "Cancel") return;
+			HttpTracerHandler.DefaultVerbosity = (HttpMessageParts)Enum.Parse(typeof(HttpMessageParts), action);
+		}
 	}
 }

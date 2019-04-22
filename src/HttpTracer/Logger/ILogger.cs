@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace HttpTracer
+namespace HttpTracer.Logger
 {
     public interface ILogger
     {

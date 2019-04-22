@@ -1,6 +1,6 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
+  <PropertyGroup>    
     <TargetFramework>netcoreapp2.0</TargetFramework>
 
     <IsPackable>false</IsPackable>
@@ -15,5 +15,4 @@
   <ItemGroup>
     <ProjectReference Include="..\HttpTracer\HttpTracer.csproj" />
   </ItemGroup>
-
 </Project>
