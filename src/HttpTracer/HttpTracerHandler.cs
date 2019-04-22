@@ -30,10 +30,11 @@ namespace HttpTracer
         /// </summary>
         /// <param name="handler">User defined <see cref="HttpMessageHandler"/></param>
         /// <param name="logger">User defined <see cref="ILogger"/></param>
-        public HttpTracerHandler(HttpMessageHandler handler = null, ILogger logger = null)
+        public HttpTracerHandler(HttpMessageHandler handler = null, ILogger logger = null, HttpMessageParts verbosity = HttpMessageParts.Unspecified)
         {
             InnerHandler = handler ?? new HttpClientHandler();
             _logger = logger ?? new ConsoleLogger();
+            _verbosity = verbosity;
         }
 
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
