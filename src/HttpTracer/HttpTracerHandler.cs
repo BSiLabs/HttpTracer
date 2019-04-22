@@ -10,9 +10,16 @@ namespace HttpTracer
 {
     public class HttpTracerHandler : DelegatingHandler
     {
+        /// <summary>
+        /// Default verbosity bitmask <see cref="HttpMessageParts"/>
+        /// </summary>
         public static HttpMessageParts DefaultVerbosity { get; set; } = HttpMessageParts.All;
 
         private HttpMessageParts _verbosity = HttpMessageParts.Unspecified;
+        
+        /// <summary>
+        /// Instance verbosity bitmask, setting the instance verbosity overrides <see cref="DefaultVerbosity"/> <see cref="HttpMessageParts"/>
+        /// </summary>
         public HttpMessageParts Verbosity
         {
             get => _verbosity == HttpMessageParts.Unspecified ? DefaultVerbosity : _verbosity;
@@ -30,6 +37,7 @@ namespace HttpTracer
         /// </summary>
         /// <param name="handler">User defined <see cref="HttpMessageHandler"/></param>
         /// <param name="logger">User defined <see cref="ILogger"/></param>
+        /// <param name="verbosity">Instance verbosity bitmask, setting the instance verbosity overrides <see cref="DefaultVerbosity"/>  <see cref="HttpMessageParts"/></param>
         public HttpTracerHandler(HttpMessageHandler handler = null, ILogger logger = null, HttpMessageParts verbosity = HttpMessageParts.Unspecified)
         {
             InnerHandler = handler ?? new HttpClientHandler();
