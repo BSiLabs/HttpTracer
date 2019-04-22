@@ -80,6 +80,7 @@ namespace HttpTracer
             
             var httpErrorRequestBody = await GetRequestBody(request);
             sb.AppendLine(httpErrorRequestBody);
+            
             _logger.Log(sb.ToString());
         }
 
@@ -170,7 +171,7 @@ namespace HttpTracer
 
         private string GetRequestHeaders(HttpRequestMessage request) =>
             !Verbosity.HasFlag(HttpMessageParts.RequestHeaders) ? string.Empty : $@"{request?.Method} {request?.RequestUri}
-{request?.Headers.ToString().TrimEnd()}
+{request?.Headers.ToString().TrimEnd().TrimEnd('}').TrimStart('{')}
 ";
 
         protected Task<string> GetRequestBody(HttpRequestMessage request) => request?.Content?.ReadAsStringAsync() ?? Task.FromResult(string.Empty);
