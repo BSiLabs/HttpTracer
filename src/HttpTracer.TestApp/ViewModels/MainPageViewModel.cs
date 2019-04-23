@@ -44,7 +44,9 @@ namespace HttpTracer.TestApp.ViewModels
             client.DefaultRequestHeaders.Add("custom-header", "Hi Mark");
             try
             {
-                var result = await client.GetAsync("https://uinames.com/api?ext&amount=25");
+                //var result = await client.GetAsync("https://uinames.com/api?ext&amount=25");
+                var content = new StringContent(@"{""name"": ""morpheus"", ""job"": ""leader""}");
+                var result = await client.PostAsync("https://reqres.in/api/users", content);
             }
             catch (Exception e)
             {
