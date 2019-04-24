@@ -37,9 +37,5 @@
     <PackageReference Include="MSBuild.Sdk.Extras" Version="1.6.68" PrivateAssets="All" />
     <Compile Include="**\*.shared.cs" />
   </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Logger" />
-  </ItemGroup>
   <Import Project="$(MSBuildSDKExtrasTargets)" Condition="Exists('$(MSBuildSDKExtrasTargets)')" />
 </Project>
