@@ -8,6 +8,7 @@ namespace HttpTracer.Tests.Fakes
 {
     public class FakeHttpTraceHandler : HttpTracerHandler
     {
+        public const string FakeResponseContent = "Response Content";
         public FakeHttpTraceHandler(ILogger logger) : base(null, logger) {}
 
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
@@ -15,7 +16,7 @@ namespace HttpTracer.Tests.Fakes
             try
             {
                 await LogHttpRequest(request);
-                var response = new HttpResponseMessage(System.Net.HttpStatusCode.OK) { Content = new StringContent("Response Content")};
+                var response = new HttpResponseMessage(System.Net.HttpStatusCode.OK) { Content = new StringContent(FakeResponseContent)};
                 await LogHttpResponse(response, 0);
                 return response;
             }

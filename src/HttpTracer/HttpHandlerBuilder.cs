@@ -19,11 +19,13 @@ namespace HttpTracer
         /// <summary>
         /// Initializes a new instance of the <see cref="T:HttpTracer.HttpHandlerBuilder"/> class.
         /// </summary>
+        public HttpHandlerBuilder() : this (new HttpTracerHandler(null, null)) { }
+        
+        /// <summary>
+        /// Initializes a new instance of the <see cref="T:HttpTracer.HttpHandlerBuilder"/> class.
+        /// </summary>
         /// <param name="logger">Logger.</param>
-        public HttpHandlerBuilder(ILogger logger = null)
-        {
-            _rootHandler = new HttpTracerHandler(null, logger);
-        }
+        public HttpHandlerBuilder(ILogger logger) : this (new HttpTracerHandler(null, logger)) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="T:HttpTracer.HttpHandlerBuilder"/> class.
@@ -44,7 +46,7 @@ namespace HttpTracer
             if (handler is HttpTracerHandler) throw new ArgumentException($"Can't add handler of type {nameof(HttpTracerHandler)}.");
 
             if (_handlersList.Any())
-                _handlersList.LastOrDefault().InnerHandler = handler;
+                _handlersList.Last().InnerHandler = handler;
 
             _handlersList.Add(handler);
             return this;
@@ -57,7 +59,7 @@ namespace HttpTracer
         public DelegatingHandler Build()
         {
             if (_handlersList.Any())
-                _handlersList.LastOrDefault().InnerHandler = _rootHandler;
+                _handlersList.Last().InnerHandler = _rootHandler;
             else
                 return _rootHandler;
 

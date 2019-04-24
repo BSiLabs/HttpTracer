@@ -7,6 +7,10 @@ namespace HttpTracer.Tests.Fakes
 {
     public class SillyHandler : DelegatingHandler
     {
+        public static readonly string SillyHeader = $"{HeaderKey}: {HeaderValue}";
+        public const string HeaderKey = "SILLY-HEADER";
+        public const string HeaderValue = "SILLY VALUE";
+        
         public SillyHandler()
         {
             InnerHandler = new HttpClientHandler();
@@ -16,9 +20,7 @@ namespace HttpTracer.Tests.Fakes
         {
             await Task.Delay(1, cancellationToken);
 
-            request.Headers.Add("SILLY-HEADER", "SILLY VALUE");
-
-            Debug.WriteLine("HI I'M MyHandler1");
+            request.Headers.Add(HeaderKey, HeaderValue);
 
             await base.SendAsync(request, cancellationToken).ConfigureAwait(false);
 

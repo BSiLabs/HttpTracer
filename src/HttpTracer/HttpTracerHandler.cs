@@ -16,7 +16,7 @@ namespace HttpTracer
         /// </summary>
         public static HttpMessageParts DefaultVerbosity { get; set; } = HttpMessageParts.All;
 
-        private HttpMessageParts _verbosity = HttpMessageParts.Unspecified;
+        private HttpMessageParts _verbosity;
         
         /// <summary>
         /// Instance verbosity bitmask, setting the instance verbosity overrides <see cref="DefaultVerbosity"/> <see cref="HttpMessageParts"/>
@@ -29,17 +29,37 @@ namespace HttpTracer
 
         private readonly ILogger _logger;
 
+        // ReSharper disable InconsistentNaming
         private const string MessageIndicator = " ==================== ";
+        // ReSharper restore InconsistentNaming
         public static string LogMessageIndicatorPrefix = MessageIndicator;
         public static string LogMessageIndicatorSuffix = MessageIndicator;
 
-        /// <summary>
-        /// Constructs the <see cref="HttpTracerHandler"/> with a custom <see cref="ILogger"/> and a custom <see cref="HttpMessageHandler"/>
-        /// </summary>
+        /// <summary> Constructs the <see cref="HttpTracerHandler"/> with a custom <see cref="ILogger"/> and a custom <see cref="HttpMessageHandler"/></summary>
+        public HttpTracerHandler() : this(null,null) { }
+        /// <summary> Constructs the <see cref="HttpTracerHandler"/> with a custom <see cref="ILogger"/> and a custom <see cref="HttpMessageHandler"/></summary>
+        /// <param name="handler">User defined <see cref="HttpMessageHandler"/></param>
+        public HttpTracerHandler(HttpMessageHandler handler) : this(handler,null) { }
+        /// <summary> Constructs the <see cref="HttpTracerHandler"/> with a custom <see cref="ILogger"/> and a custom <see cref="HttpMessageHandler"/></summary>
+        /// <param name="logger">User defined <see cref="ILogger"/></param>
+        public HttpTracerHandler(ILogger logger) : this(null,logger) { }
+        /// <summary> Constructs the <see cref="HttpTracerHandler"/> with a custom <see cref="ILogger"/> and a custom <see cref="HttpMessageHandler"/></summary>
+        /// <param name="verbosity">Instance verbosity bitmask, setting the instance verbosity overrides <see cref="DefaultVerbosity"/>  <see cref="HttpMessageParts"/></param>
+        public HttpTracerHandler(HttpMessageParts verbosity) : this(null,null,verbosity) { }
+        /// <summary> Constructs the <see cref="HttpTracerHandler"/> with a custom <see cref="ILogger"/> and a custom <see cref="HttpMessageHandler"/></summary>
+        /// <param name="handler">User defined <see cref="HttpMessageHandler"/></param>
+        /// <param name="verbosity">Instance verbosity bitmask, setting the instance verbosity overrides <see cref="DefaultVerbosity"/>  <see cref="HttpMessageParts"/></param>
+        public HttpTracerHandler(HttpMessageHandler handler, HttpMessageParts verbosity) : this(handler,null, verbosity) { }
+        /// <summary> Constructs the <see cref="HttpTracerHandler"/> with a custom <see cref="ILogger"/> and a custom <see cref="HttpMessageHandler"/></summary>
+        /// <param name="logger">User defined <see cref="ILogger"/></param>
+        /// <param name="verbosity">Instance verbosity bitmask, setting the instance verbosity overrides <see cref="DefaultVerbosity"/>  <see cref="HttpMessageParts"/></param>
+        public HttpTracerHandler(ILogger logger, HttpMessageParts verbosity) : this(null,logger, verbosity) { }
+        
+        /// <summary> Constructs the <see cref="HttpTracerHandler"/> with a custom <see cref="ILogger"/> and a custom <see cref="HttpMessageHandler"/></summary>
         /// <param name="handler">User defined <see cref="HttpMessageHandler"/></param>
         /// <param name="logger">User defined <see cref="ILogger"/></param>
         /// <param name="verbosity">Instance verbosity bitmask, setting the instance verbosity overrides <see cref="DefaultVerbosity"/>  <see cref="HttpMessageParts"/></param>
-        public HttpTracerHandler(HttpMessageHandler handler = null, ILogger logger = null, HttpMessageParts verbosity = HttpMessageParts.Unspecified)
+        public HttpTracerHandler(HttpMessageHandler handler, ILogger logger, HttpMessageParts verbosity = HttpMessageParts.Unspecified)
         {
             InnerHandler = handler ?? new HttpClientHandler
             {
@@ -85,7 +105,8 @@ namespace HttpTracer
             var httpErrorRequestBody = await GetRequestBody(request);
             sb.AppendLine(httpErrorRequestBody);
             
-            _logger.Log(sb.ToString());
+            if(sb.Length>0)
+                _logger.Log(sb.ToString());
         }
 
         protected virtual async Task LogHttpRequest(HttpRequestMessage request)
@@ -109,7 +130,9 @@ namespace HttpTracer
                 var httpErrorRequestBody = await GetRequestBody(request);
                 sb.AppendLine(httpErrorRequestBody);
             }
-            _logger.Log(sb.ToString());
+            
+            if(sb.Length>0)
+                _logger.Log(sb.ToString());
         }
 
         protected virtual async Task LogHttpResponse(HttpResponseMessage response, long elapsedMilliseconds)
@@ -147,7 +170,9 @@ namespace HttpTracer
                 var httpResponsePostfix = $"{elapsedMilliseconds}ms";
                 sb.AppendLine(httpResponsePostfix);
             }
-            _logger.Log(sb.ToString());
+            
+            if(sb.Length>0)
+                _logger.Log(sb.ToString());
         }
 
         private string GetResponseLogHeading(HttpResponseMessage response)
