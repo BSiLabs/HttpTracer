@@ -10,10 +10,11 @@ namespace HttpTracer
 
         RequestBody = 2,
         RequestHeaders = 4,
-        RequestAll = RequestBody | RequestHeaders,
+        RequestCookies = 8,
+        RequestAll = RequestBody | RequestHeaders | RequestCookies,
 
-        ResponseBody = 8,
-        ResponseHeaders = 16,
+        ResponseBody = 16,
+        ResponseHeaders = 32,
 
         ResponseAll = ResponseBody | ResponseHeaders,
 

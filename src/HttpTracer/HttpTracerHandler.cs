@@ -37,19 +37,24 @@ namespace HttpTracer
 
         /// <summary> Constructs the <see cref="HttpTracerHandler"/> with a custom <see cref="ILogger"/> and a custom <see cref="HttpMessageHandler"/></summary>
         public HttpTracerHandler() : this(null,null) { }
+
         /// <summary> Constructs the <see cref="HttpTracerHandler"/> with a custom <see cref="ILogger"/> and a custom <see cref="HttpMessageHandler"/></summary>
         /// <param name="handler">User defined <see cref="HttpMessageHandler"/></param>
         public HttpTracerHandler(HttpMessageHandler handler) : this(handler,null) { }
+
         /// <summary> Constructs the <see cref="HttpTracerHandler"/> with a custom <see cref="ILogger"/> and a custom <see cref="HttpMessageHandler"/></summary>
         /// <param name="logger">User defined <see cref="ILogger"/></param>
         public HttpTracerHandler(ILogger logger) : this(null,logger) { }
+
         /// <summary> Constructs the <see cref="HttpTracerHandler"/> with a custom <see cref="ILogger"/> and a custom <see cref="HttpMessageHandler"/></summary>
         /// <param name="verbosity">Instance verbosity bitmask, setting the instance verbosity overrides <see cref="DefaultVerbosity"/>  <see cref="HttpMessageParts"/></param>
         public HttpTracerHandler(HttpMessageParts verbosity) : this(null,null,verbosity) { }
+
         /// <summary> Constructs the <see cref="HttpTracerHandler"/> with a custom <see cref="ILogger"/> and a custom <see cref="HttpMessageHandler"/></summary>
         /// <param name="handler">User defined <see cref="HttpMessageHandler"/></param>
         /// <param name="verbosity">Instance verbosity bitmask, setting the instance verbosity overrides <see cref="DefaultVerbosity"/>  <see cref="HttpMessageParts"/></param>
         public HttpTracerHandler(HttpMessageHandler handler, HttpMessageParts verbosity) : this(handler,null, verbosity) { }
+
         /// <summary> Constructs the <see cref="HttpTracerHandler"/> with a custom <see cref="ILogger"/> and a custom <see cref="HttpMessageHandler"/></summary>
         /// <param name="logger">User defined <see cref="ILogger"/></param>
         /// <param name="verbosity">Instance verbosity bitmask, setting the instance verbosity overrides <see cref="DefaultVerbosity"/>  <see cref="HttpMessageParts"/></param>
@@ -117,6 +122,9 @@ namespace HttpTracer
                 var httpRequestPrefix =
                     $"{LogMessageIndicatorPrefix}HTTP REQUEST: [{request?.Method}]{LogMessageIndicatorSuffix}";
                 sb.AppendLine(httpRequestPrefix);
+                
+                var httpRequestMethodUri = $@"{request?.Method} {request?.RequestUri}";
+                sb.AppendLine(httpRequestMethodUri);
             }
 
             if (Verbosity.HasFlag(HttpMessageParts.RequestHeaders))
@@ -131,7 +139,7 @@ namespace HttpTracer
                 sb.AppendLine(httpErrorRequestBody);
             }
             
-            if(sb.Length>0)
+            if (sb.Length > 0)
                 _logger.Log(sb.ToString());
         }
 
@@ -145,23 +153,20 @@ namespace HttpTracer
                 var httpResponsePrefix =
                     $@"{LogMessageIndicatorPrefix}HTTP RESPONSE: [{responseResult}]{LogMessageIndicatorSuffix}";
                 sb.AppendLine(httpResponsePrefix);
+
+                var httpRequestMethodUri = $@"{response?.RequestMessage?.Method} {response?.RequestMessage?.RequestUri}";
+                sb.AppendLine(httpRequestMethodUri);
             }
 
             if (Verbosity.HasFlag(HttpMessageParts.ResponseHeaders))
             {
-                var httpResponseHeaders = $@"
-{response?.RequestMessage?.Method} {response?.RequestMessage?.RequestUri}
-{response}";
+                var httpResponseHeaders = $@"{response}";
                 sb.AppendLine(httpResponseHeaders);
             }
 
             if (Verbosity.HasFlag(HttpMessageParts.ResponseBody))
             {
-                var responseContent = await GetResponseBody(response).ConfigureAwait(false);
-
-                var httpResponseContent =
-                    $@"
-{responseContent}";
+                var httpResponseContent = await GetResponseBody(response).ConfigureAwait(false);
                 sb.AppendLine(httpResponseContent);
             }
 
@@ -171,7 +176,7 @@ namespace HttpTracer
                 sb.AppendLine(httpResponsePostfix);
             }
             
-            if(sb.Length>0)
+            if (sb.Length > 0)
                 _logger.Log(sb.ToString());
         }
 
@@ -198,10 +203,31 @@ namespace HttpTracer
             _logger.Log(httpExceptionString);
         }
 
-        private string GetRequestHeaders(HttpRequestMessage request) =>
-            !Verbosity.HasFlag(HttpMessageParts.RequestHeaders) ? string.Empty : $@"{request?.Method} {request?.RequestUri}
-{request?.Headers.ToString().TrimEnd().TrimEnd('}').TrimStart('{')}
-";
+        private string GetRequestHeaders(HttpRequestMessage request)
+        {
+            string httpRequestHeaders = string.Empty;
+
+            if (request is null)
+                return httpRequestHeaders;
+            
+            if (Verbosity.HasFlag(HttpMessageParts.RequestHeaders))
+                httpRequestHeaders = $@"{request.Headers.ToString().TrimEnd().TrimEnd('}').TrimStart('{')}";
+
+            if (Verbosity.HasFlag(HttpMessageParts.RequestCookies)
+                && InnerHandler is HttpClientHandler httpClientHandler)
+            {
+                if (httpClientHandler.UseCookies)
+                {
+                    var uriCookies = httpClientHandler.CookieContainer.GetCookies(request.RequestUri);
+                    if (uriCookies.Count > 0)
+                    {
+                        var cookieValues = string.Join("; ", uriCookies).TrimEnd(';', ' ');
+                        httpRequestHeaders += $"{Environment.NewLine}Cookie: {cookieValues}";
+                    }
+                }
+            }
+            return httpRequestHeaders;
+        }
 
         protected Task<string> GetRequestBody(HttpRequestMessage request) => request?.Content?.ReadAsStringAsync() ?? Task.FromResult(string.Empty);
 
