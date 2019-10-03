@@ -91,7 +91,7 @@ namespace HttpTracer.Tests
             logger.LogHistory.Count.Should().Be(2);
             
             // assert request
-            logger.LogHistory[0].Should().NotContain(_testUri);
+            logger.LogHistory[0].Should().Contain(_testUri);
             logger.LogHistory[0].Should().Contain("HTTP REQUEST: [GET]");
             logger.LogHistory[0].Should().NotContain(SillyHandler.SillyHeader);
             logger.LogHistory[0].Should().NotContain(FakeHandler.FakeHeader);
