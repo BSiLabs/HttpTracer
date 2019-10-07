@@ -98,7 +98,6 @@ namespace HttpTracer.TestApp.ViewModels
             var client = GetHttpClient(logger);
             try
             {
-                //var result = await client.GetAsync("https://uinames.com/api?ext&amount=25");
                 var content = new StringContent(@"{""name"": ""morpheus"", ""job"": ""leader""}");
                 await client.PostAsync($"https://{Domain}/api/users", content);
             }

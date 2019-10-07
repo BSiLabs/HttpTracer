@@ -23,7 +23,7 @@ namespace HttpTracer.TestApp
             InitializeComponent();
 
 #if DEBUG
-            //HotReloader.Current.Run(this); 
+            HotReloader.Current.Run(this); 
 #endif
             
             await NavigationService.NavigateAsync("NavigationPage/MainPage");
