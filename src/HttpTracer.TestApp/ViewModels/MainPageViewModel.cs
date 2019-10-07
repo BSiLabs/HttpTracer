@@ -24,20 +24,6 @@ namespace HttpTracer.TestApp.ViewModels
         public ICommand LogToConsoleCommand { get; }
         
         public ObservableRangeCollection<string> LogEntries { get; } = new ObservableRangeCollection<string>();
-        
-        private string _logEntriesString;
-        public string LogEntriesString
-        {
-            get => _logEntriesString;
-            set => SetProperty(ref _logEntriesString, value);
-        }
-        
-        private FormattedString _logEntriesSpans = new FormattedString();
-        public FormattedString LogEntriesSpans
-        {
-            get => _logEntriesSpans;
-            set => SetProperty(ref _logEntriesSpans, value);
-        }
 
         public ObservableRangeCollection<User> UserList { get; } = new ObservableRangeCollection<User>();
 
@@ -112,13 +98,6 @@ namespace HttpTracer.TestApp.ViewModels
             var memoryLogger = new MemoryLogger();
             await PostData(memoryLogger);
             LogEntries.AddRange(memoryLogger.LogEntries.SelectMany(x => x.Split(Environment.NewLine.ToCharArray())));
-            LogEntriesString += string.Join(Environment.NewLine, LogEntries);
-            LogEntriesSpans = new FormattedString();
-            foreach (var logEntry in LogEntries)
-            {
-                LogEntriesSpans.Spans.Add(new Span { Text = logEntry });
-                LogEntriesSpans.Spans.Add(new Span { Text = Environment.NewLine });
-            }
         }
 
         public class MemoryLogger : ILogger
