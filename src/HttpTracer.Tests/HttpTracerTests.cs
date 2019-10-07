@@ -1,4 +1,6 @@
-﻿using System.Net.Http;
+﻿using System;
+using System.Net;
+using System.Net.Http;
 using System.Threading.Tasks;
 using FluentAssertions;
 using HttpTracer.Tests.Fakes;
@@ -10,12 +12,14 @@ namespace HttpTracer.Tests
     public class HttpTracerTests
     {
         private const string _testUri = "https://uinames.com/api?ext&amount=25";
+        public const string CookieName = "TEST-COOKIE";
+        public const string CookieValue = "TEST COOKIE";
         
         [TestMethod]
         public async Task ShouldLogWithoutBuilder()
         {
             var logger = new FakeLogger();
-            var handler = new FakeHttpTraceHandler(logger);
+            var handler = new FakeHttpTraceHandler(null, logger);
         
             var client = new HttpClient(handler);
             await client.GetAsync(_testUri);
@@ -38,7 +42,7 @@ namespace HttpTracer.Tests
         public async Task ShouldLogWithHandlerHierarchyWithoutBuilder()
         {
             var logger = new FakeLogger();
-            var child = new SillyHandler { InnerHandler = new FakeHandler { InnerHandler = new FakeHttpTraceHandler(logger) } };
+            var child = new SillyHandler { InnerHandler = new FakeHandler { InnerHandler = new FakeHttpTraceHandler(null, logger) } };
 
             var client = new HttpClient(child);
             await client.GetAsync(_testUri);
@@ -158,6 +162,23 @@ namespace HttpTracer.Tests
         }
 
         [TestMethod]
+        public async Task ShouldLogRequestCookies()
+        {
+            var verbosity = HttpMessageParts.RequestAll;
+            var logger = await ExecuteFakeRequest(verbosity);
+            
+            // assert log count
+            logger.LogHistory.Count.Should().Be(1);
+                     
+            // assert request
+            logger.LogHistory[0].Should().Contain(_testUri);
+            logger.LogHistory[0].Should().Contain("HTTP REQUEST: [GET]");
+            logger.LogHistory[0].Should().Contain(SillyHandler.SillyHeader);
+            logger.LogHistory[0].Should().Contain(FakeHandler.FakeHeader);
+            logger.LogHistory[0].Should().Contain(CookieName);
+        }
+
+        [TestMethod]
         public async Task ShouldLogNothing()
         {
             var verbosity = HttpMessageParts.None;
@@ -169,7 +190,12 @@ namespace HttpTracer.Tests
         private static async Task<FakeLogger> ExecuteFakeRequest(HttpMessageParts? verbosity = null)
         {
             var logger = new FakeLogger();
-            var builder = new HttpHandlerBuilder(new FakeHttpTraceHandler(logger));
+            
+            var httpClientHandler = new HttpClientHandler();
+            httpClientHandler.UseCookies = true;
+            httpClientHandler.CookieContainer.Add(new Cookie(CookieName, CookieValue, "", new Uri(_testUri).Host));
+            
+            var builder = new HttpHandlerBuilder(new FakeHttpTraceHandler(httpClientHandler, logger));
             builder.AddHandler(new FakeHandler())
                 .AddHandler(new SillyHandler())
                 .AddHandler(new FakeHandler());

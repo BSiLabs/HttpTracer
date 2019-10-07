@@ -216,14 +216,11 @@ namespace HttpTracer
             if (Verbosity.HasFlag(HttpMessageParts.RequestCookies)
                 && InnerHandler is HttpClientHandler httpClientHandler)
             {
-                if (httpClientHandler.UseCookies)
+                if (!httpClientHandler.UseCookies) return httpRequestHeaders;
+                var cookieHeader = httpClientHandler.CookieContainer.GetCookieHeader(request.RequestUri);
+                if (!string.IsNullOrWhiteSpace(cookieHeader))
                 {
-                    var uriCookies = httpClientHandler.CookieContainer.GetCookies(request.RequestUri);
-                    if (uriCookies.Count > 0)
-                    {
-                        var cookieValues = string.Join("; ", uriCookies).TrimEnd(';', ' ');
-                        httpRequestHeaders += $"{Environment.NewLine}Cookie: {cookieValues}";
-                    }
+                    httpRequestHeaders += $"{Environment.NewLine}Cookie: {cookieHeader}";
                 }
             }
             return httpRequestHeaders;

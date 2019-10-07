@@ -4,17 +4,50 @@
              x:Class="HttpTracer.TestApp.Views.MainPage"
              Title="{Binding Title}">
 
-    <StackLayout HorizontalOptions="CenterAndExpand" VerticalOptions="CenterAndExpand">
-        <Label Text="Welcome to Xamarin Forms and Prism!" />
+        <Grid HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand">
+                <Grid.ColumnDefinitions>
+                        <ColumnDefinition />
+                        <ColumnDefinition />
+                        <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                        <RowDefinition />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="20" />
+                </Grid.RowDefinitions>
+                
+                <ScrollView Grid.ColumnSpan="3"
+                            VerticalOptions="FillAndExpand"
+                            HorizontalOptions="FillAndExpand"
+                            BackgroundColor="Black">
+                        <ScrollView Orientation="Horizontal">
+                                <StackLayout BindableLayout.ItemsSource="{Binding LogEntries}"
+                                             Margin="10">
+                                        <BindableLayout.ItemTemplate>
+                                                <DataTemplate>
+                                                        <Label FormattedText="{Binding .}"
+                                                               VerticalOptions="StartAndExpand"
+                                                               HorizontalOptions="StartAndExpand"
+                                                               BackgroundColor="Transparent"
+                                                               TextColor="Chartreuse"
+                                                               FontFamily="Courier"
+                                                               LineBreakMode="NoWrap" />
+                                                </DataTemplate>
+                                        </BindableLayout.ItemTemplate>
+                                </StackLayout>
+                        </ScrollView>
+                </ScrollView>
 
-        <Button x:Name="VerbosityButton" Text="Change HttpTracer Verbosity"
-                Clicked="VerbosityButton_OnClicked"/>
-        
-        <Button Text="Dump trace to Console!"
-                Command="{Binding ButtonClickCommand}" />
+                <Button Grid.Column="0" Grid.Row="1" 
+                        x:Name="VerbosityButton" 
+                        Text="Change Verbosity"
+                        Clicked="VerbosityButton_OnClicked"/>
 
-        <Button Text="Dump trace to File!"
-                Command="{Binding TraceFileCommand}" />
-    </StackLayout>
+                <Button Grid.Column="1" Grid.Row="1" Text="Log to screen"
+                        Command="{Binding LogToScreenCommand}" />
+
+                <Button Grid.Column="2" Grid.Row="1" Text="Log to console"
+                        Command="{Binding LogToConsoleCommand}" />
+        </Grid>
 
 </ContentPage>

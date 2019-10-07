@@ -9,7 +9,7 @@ namespace HttpTracer.Tests.Fakes
     public class FakeHttpTraceHandler : HttpTracerHandler
     {
         public const string FakeResponseContent = "Response Content";
-        public FakeHttpTraceHandler(ILogger logger) : base(null, logger) {}
+        public FakeHttpTraceHandler(HttpClientHandler httpClientHandler, ILogger logger) : base(httpClientHandler, logger) {}
 
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {

@@ -26,6 +26,9 @@
     <MtouchArch>i386, x86_64</MtouchArch>
     <MtouchLink>None</MtouchLink>
     <MtouchDebug>true</MtouchDebug>
+    <CodesignExtraArgs>
+    </CodesignExtraArgs>
+    <MtouchExtraArgs>--enable-repl</MtouchExtraArgs>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|iPhoneSimulator' ">
     <DebugType>none</DebugType>
@@ -189,12 +192,13 @@
     <Reference Include="Xamarin.iOS" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Xamarin.Forms" Version="2.5.0.122203" />
-    <PackageReference Include="Prism.Autofac.Forms" Version="7.0.0.396" />
+    <PackageReference Include="Xamarin.Forms" Version="4.1.0.778454" />
+    <PackageReference Include="Prism.Autofac.Forms" Version="7.1.0.431" />
+    <PackageReference Include="Xamarin.HotReload" Version="1.5.2" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\HttpTracer.TestApp\HttpTracer.TestApp.csproj">
-      <Project>{A682884C-CB44-4A89-B752-27BB634E0ABE}</Project>
+      <Project>{294FE9CA-3EAE-4D3D-94CC-F4EEDEFAD04E}</Project>
       <Name>HttpTracer.TestApp</Name>
     </ProjectReference>
   </ItemGroup>

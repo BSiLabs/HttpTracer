@@ -1,13 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Xamarin.Forms;
 
 namespace HttpTracer.TestApp.Views
 {
-	public partial class MainPage : ContentPage
+	public partial class MainPage
 	{
 		public MainPage ()
 		{
@@ -16,13 +12,7 @@ namespace HttpTracer.TestApp.Views
 
 		private async void VerbosityButton_OnClicked(object sender, EventArgs e)
 		{
-			var verbosityOptions = new string[]
-			{
-				HttpMessageParts.None.ToString(),
-				HttpMessageParts.All.ToString(),
-				HttpMessageParts.RequestAll.ToString(),
-				HttpMessageParts.ResponseAll.ToString()
-			};
+			var verbosityOptions = Enum.GetValues(typeof(HttpMessageParts)).Cast<HttpMessageParts>().Select(x => x.ToString()).ToArray();
 			string action = await DisplayActionSheet("Select Verbosity:", "Cancel", null, verbosityOptions);
 			if (action == "Cancel") return;
 			HttpTracerHandler.DefaultVerbosity = (HttpMessageParts)Enum.Parse(typeof(HttpMessageParts), action);
