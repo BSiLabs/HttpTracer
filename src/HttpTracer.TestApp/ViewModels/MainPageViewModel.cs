@@ -19,16 +19,11 @@ namespace HttpTracer.TestApp.ViewModels
         private const HttpMessageParts DefaultHttpTracerVerbosity =
             HttpMessageParts.RequestAll | HttpMessageParts.ResponseHeaders;
 
-        private ICommand _logToScreenCommand;
-        public ICommand LogToScreenCommand => _logToScreenCommand =
-            _logToScreenCommand ?? new Command(async () => { await LogToScreen(); });
+        public ICommand LogToScreenCommand { get; }
 
-        private ICommand _logToConsoleCommand;
-        public ICommand LogToConsoleCommand => _logToConsoleCommand =
-            _logToConsoleCommand ?? new Command(async () => { await LogToConsole(); });
+        public ICommand LogToConsoleCommand { get; }
         
         public ObservableRangeCollection<string> LogEntries { get; } = new ObservableRangeCollection<string>();
-
         
         private string _logEntriesString;
         public string LogEntriesString
@@ -43,7 +38,6 @@ namespace HttpTracer.TestApp.ViewModels
             get => _logEntriesSpans;
             set => SetProperty(ref _logEntriesSpans, value);
         }
-        
 
         public ObservableRangeCollection<User> UserList { get; } = new ObservableRangeCollection<User>();
 
@@ -51,6 +45,8 @@ namespace HttpTracer.TestApp.ViewModels
             : base (navigationService)
         {
             Title = "Main Page";
+            LogToConsoleCommand = new Command(async () => { await LogToConsole(); });
+            LogToScreenCommand = new Command(async () => { await LogToScreen(); });
         }
 
         private async Task LogToConsole()
