@@ -30,6 +30,19 @@ namespace HttpTracer
         /// <summary>
         /// Initializes a new instance of the <see cref="T:HttpTracer.HttpHandlerBuilder"/> class.
         /// </summary>
+        /// <param name="innerHandler">HttpClientHandler.</param>
+        public HttpHandlerBuilder(HttpClientHandler innerHandler) : this (new HttpTracerHandler(innerHandler, null)) { }
+        
+        /// <summary>
+        /// Initializes a new instance of the <see cref="T:HttpTracer.HttpHandlerBuilder"/> class.
+        /// </summary>
+        /// <param name="innerHandler">HttpClientHandler.</param>
+        /// <param name="logger">Logger.</param>
+        public HttpHandlerBuilder(HttpClientHandler innerHandler, ILogger logger) : this (new HttpTracerHandler(innerHandler, logger)) { }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="T:HttpTracer.HttpHandlerBuilder"/> class.
+        /// </summary>
         /// <param name="tracerHandler">Tracer handler.</param>
         public HttpHandlerBuilder(HttpTracerHandler tracerHandler)
         {

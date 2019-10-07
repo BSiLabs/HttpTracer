@@ -1,34 +1,51 @@
-﻿using Prism.Commands;
-using Prism.Mvvm;
-using Prism.Navigation;
+﻿using Prism.Navigation;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using HttpTracer.Logger;
+using MvvmHelpers;
+using Newtonsoft.Json.Linq;
 using Xamarin.Forms;
 
 namespace HttpTracer.TestApp.ViewModels
 {
     public class MainPageViewModel : ViewModelBase
     {
+        private const string Domain = "reqres.in";
         private const HttpMessageParts DefaultHttpTracerVerbosity =
             HttpMessageParts.RequestAll | HttpMessageParts.ResponseHeaders;
-        
-        public ICommand ButtonClickCommand
-        {
-            get { return new Command(async () => { await ButtonClick(); }); }
-        }
 
-        public ICommand TraceFileCommand
+        private ICommand _logToScreenCommand;
+        public ICommand LogToScreenCommand => _logToScreenCommand =
+            _logToScreenCommand ?? new Command(async () => { await LogToScreen(); });
+
+        private ICommand _logToConsoleCommand;
+        public ICommand LogToConsoleCommand => _logToConsoleCommand =
+            _logToConsoleCommand ?? new Command(async () => { await LogToConsole(); });
+        
+        public ObservableRangeCollection<string> LogEntries { get; } = new ObservableRangeCollection<string>();
+
+        
+        private string _logEntriesString;
+        public string LogEntriesString
         {
-            get { return new Command(async () => { await TraceFileClick(); }); }
+            get => _logEntriesString;
+            set => SetProperty(ref _logEntriesString, value);
         }
+        
+        private FormattedString _logEntriesSpans = new FormattedString();
+        public FormattedString LogEntriesSpans
+        {
+            get => _logEntriesSpans;
+            set => SetProperty(ref _logEntriesSpans, value);
+        }
+        
+
+        public ObservableRangeCollection<User> UserList { get; } = new ObservableRangeCollection<User>();
 
         public MainPageViewModel(INavigationService navigationService)
             : base (navigationService)
@@ -36,49 +53,88 @@ namespace HttpTracer.TestApp.ViewModels
             Title = "Main Page";
         }
 
-        private async Task ButtonClick()
+        private async Task LogToConsole()
         {
-            var client = new HttpClient(new HttpTracerHandler(null, new Logger.DebugLogger(), DefaultHttpTracerVerbosity));
-            client.DefaultRequestHeaders.Add("Authorization", "Bearer ThisIsProbablyNotAValidJwt");
-            client.DefaultRequestHeaders.Add("client-version", "1.0.0");
-            client.DefaultRequestHeaders.Add("custom-header", "Hi Mark");
+            await GetData(new DebugLogger());
+        }
+
+        private async Task PostData(ILogger logger)
+        {
+            var client = GetHttpClient(logger);
+            try
+            {
+                var result = await client.GetAsync($"https://{Domain}/api/users");
+                var json = await result.Content.ReadAsStringAsync();
+                var jObject = JObject.Parse(json);
+                var users = jObject["data"].ToObject<List<User>>();
+                UserList.AddRange(users);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
+        }
+
+        private static HttpClient GetHttpClient(ILogger logger)
+        {
+            HttpClient client = default;
+            try
+            {
+                var httpClientHandler = new HttpClientHandler();
+                httpClientHandler.UseCookies = true;
+                httpClientHandler.CookieContainer.Add(new Cookie("TestCookie1", "One", "", Domain));
+                httpClientHandler.CookieContainer.Add(new Cookie("TestCookie2", "Two", "", Domain));
+            
+                client = new HttpClient(new HttpTracerHandler(httpClientHandler, logger, DefaultHttpTracerVerbosity));
+                client.DefaultRequestHeaders.Add("Authorization", "Bearer ThisIsProbablyNotAValidJwt");
+                client.DefaultRequestHeaders.Add("client-version", "1.0.0");
+                client.DefaultRequestHeaders.Add("custom-header", "Probably not the matrix");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
+            return client;
+        }
+
+        private static async Task GetData(ILogger logger)
+        {
+            var client = GetHttpClient(logger);
             try
             {
                 //var result = await client.GetAsync("https://uinames.com/api?ext&amount=25");
                 var content = new StringContent(@"{""name"": ""morpheus"", ""job"": ""leader""}");
-                var result = await client.PostAsync("https://reqres.in/api/users", content);
+                await client.PostAsync($"https://{Domain}/api/users", content);
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                Console.WriteLine(e);
+                Console.WriteLine(ex);
             }
         }
 
-        private async Task TraceFileClick()
+        private async Task LogToScreen()
         {
-            var client = new HttpClient(new HttpTracerHandler(null, new MyLogger(), DefaultHttpTracerVerbosity));
-            client.DefaultRequestHeaders.Add("Authorization", "Bearer ThisIsProbablyNotAValidJwt");
-            client.DefaultRequestHeaders.Add("client-version", "1.0.0");
-            client.DefaultRequestHeaders.Add("custom-header", "Hi Mark");
-            try
+            var memoryLogger = new MemoryLogger();
+            await PostData(memoryLogger);
+            LogEntries.AddRange(memoryLogger.LogEntries.SelectMany(x => x.Split(Environment.NewLine.ToCharArray())));
+            LogEntriesString += string.Join(Environment.NewLine, LogEntries);
+            LogEntriesSpans = new FormattedString();
+            foreach (var logEntry in LogEntries)
             {
-                var result = await client.GetAsync("https://uinames.com/api?ext&amount=25");
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
+                LogEntriesSpans.Spans.Add(new Span { Text = logEntry });
+                LogEntriesSpans.Spans.Add(new Span { Text = Environment.NewLine });
             }
         }
 
-        public class MyLogger : ILogger
+        public class MemoryLogger : ILogger
         {
+            private readonly List<string> _logEntries = new List<string>();
+
+            public List<string> LogEntries => _logEntries;
+
             public void Log(string message)
             {
-                using (System.IO.StreamWriter file =
-                    new System.IO.StreamWriter(@"C:\Users\danielcauser\HttpLog.txt", true))
-                {
-                    file.WriteLine(message);
-                }
+                _logEntries.Add(message);
             }
         }
     }

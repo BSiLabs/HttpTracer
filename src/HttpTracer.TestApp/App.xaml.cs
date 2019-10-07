@@ -1,15 +1,13 @@
 ﻿using Prism;
 using Prism.Ioc;
-using HttpTracer.TestApp.ViewModels;
 using HttpTracer.TestApp.Views;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
-using Prism.Autofac;
 
 [assembly: XamlCompilation(XamlCompilationOptions.Compile)]
 namespace HttpTracer.TestApp
 {
-    public partial class App : PrismApplication
+    public partial class App
     {
         /* 
          * The Xamarin Forms XAML Previewer in Visual Studio uses System.Activator.CreateInstance.
@@ -24,6 +22,10 @@ namespace HttpTracer.TestApp
         {
             InitializeComponent();
 
+#if DEBUG
+            //HotReloader.Current.Run(this); 
+#endif
+            
             await NavigationService.NavigateAsync("NavigationPage/MainPage");
         }
 
