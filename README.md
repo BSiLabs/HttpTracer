@@ -7,7 +7,7 @@ A simple http tracing library to write request and response information to your 
 |MyGet.org|[![#](https://img.shields.io/myget/httptracer-preview/v/HttpTracer.svg)](https://www.myget.org/feed/httptracer-preview/package/nuget/HttpTracer)|
 |NuGet.org|[![#](https://img.shields.io/nuget/v/httptracer.svg?style=flat)](https://www.nuget.org/packages/HttpTracer/)|
 
-![](https://danielcauserblog.files.wordpress.com/2018/04/tracer_tracing_get1.gif)
+![](https://github.com/BSiLabs/HttpTracer/blob/DB/documentation-update/art/2020-03-18%2020.08.49.gif?raw=true)
 
 **Platform Support**
 
@@ -66,8 +66,11 @@ private const HttpMessageParts DefaultHttpTracerVerbosity =
 ```
 You can set the verbosity for all of your `HttpTracerHandler` instances by setting `HttpTracerHandler.DefaultVerbosity`. To set verbosity at the per-instance level, use `HttpTracerHandler.Verbosity` which will override `HttpTracerHandler.DefaultVerbosity`.
 
-### License
+## Replaying Requests
+The output format for requests can be copy/pasted into a compatible rest client such as [REST Client for Visual Studio Code](https://marketplace.visualstudio.com/items?itemName=humao.rest-client) or the [REST Client which is part of JetBrains IDEs (Rider, PyCharm, Android Studio, etc)](https://www.jetbrains.com/help/rider/REST_Client_Tool_Window.html).
+
+## License
 Under MIT (see license file)
 
-### Want To Support This Project?
+## Want To Support This Project?
 All we ask is to be active by submitting bugs, features, and sending those pull requests down!
