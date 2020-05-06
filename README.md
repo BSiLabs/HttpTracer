@@ -30,8 +30,10 @@ It is really easy to start using and debugging your Http requests, just add a in
 using HttpTracer;
 public async Task GetMyData()
 {
-    var tracer = new HttpTracerHandler();
-    tracer.Verbosity = LogLevel.Information;
+    var tracer = new HttpTracerHandler
+    {
+        Verbosity = HttpMessageParts.All
+    };
     var client = new HttpClient(tracer);
     var result = await client.GetAsync("http://myserviceurl.com");
 }
@@ -50,7 +52,7 @@ public async Task GetMyData()
            .AddHandler(new MyHandler1());
            
     var tracer = builder.Build();
-    tracer.Verbosity = LogLevel.Information;
+    tracer.Verbosity = HttpMessageParts.All;
     
     var client = new HttpClient(tracer);
     var result = await client.GetAsync("http://myserviceurl.com");
