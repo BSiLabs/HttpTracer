@@ -82,6 +82,7 @@ namespace HttpTracer.Tests
             logger.LogHistory[1].Should().Contain("StatusCode: 200");
             logger.LogHistory[1].Should().Contain("ReasonPhrase: 'OK'");
             logger.LogHistory[1].Should().Contain("Content-Type: text/plain; charset=utf-8");
+            logger.LogHistory[1].Should().Contain("Duration: 00:0250000");
             logger.LogHistory[1].Should().Contain(FakeHttpTraceHandler.FakeResponseContent);
         }
 
@@ -187,6 +188,30 @@ namespace HttpTracer.Tests
             logger.LogHistory.Count.Should().Be(0);
         }
 
+        
+        [TestMethod]
+        public async Task ShouldChangeTheDurationFormat()
+        {
+            HttpTracerHandler.DefaultDurationFormat = "{0:ffffff}ms";
+            var verbosity = HttpMessageParts.All;
+            var logger = await ExecuteFakeRequest(verbosity);
+           
+            // assert log count
+            logger.LogHistory.Count.Should().Be(2);
+            
+            // assert request
+            logger.LogHistory[0].Should().Contain(_testUri);
+            logger.LogHistory[0].Should().Contain("HTTP REQUEST: [GET]");
+            logger.LogHistory[0].Should().Contain(SillyHandler.SillyHeader);
+            logger.LogHistory[0].Should().Contain(FakeHandler.FakeHeader);
+            
+            // assert response
+            logger.LogHistory[1].Should().Contain("StatusCode: 200");
+            logger.LogHistory[1].Should().Contain("ReasonPhrase: 'OK'");
+            logger.LogHistory[1].Should().Contain("Content-Type: text/plain; charset=utf-8");
+            logger.LogHistory[1].Should().Contain("025000ms");
+            logger.LogHistory[1].Should().Contain(FakeHttpTraceHandler.FakeResponseContent);
+        }
         private static async Task<FakeLogger> ExecuteFakeRequest(HttpMessageParts? verbosity = null)
         {
             var logger = new FakeLogger();

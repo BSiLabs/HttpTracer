@@ -16,6 +16,19 @@ namespace HttpTracer
         /// </summary>
         public static HttpMessageParts DefaultVerbosity { get; set; } = HttpMessageParts.All;
 
+        /// <summary>
+        /// Duration string format. Defaults to "Duration: {0:ss\\:fffffff}"
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// Receives a <see cref="TimeSpan"/> at the [0] index.
+        /// </para>
+        /// <para>
+        /// See <a href="https://docs.microsoft.com/en-us/dotnet/standard/base-types/standard-timespan-format-strings">https://docs.microsoft.com/en-us/dotnet/standard/base-types/standard-timespan-format-strings</a> for more details on TimeSpan formatting.
+        /// </para>
+        /// </remarks>
+        public static string DefaultDurationFormat { get; set; } = "Duration: {0:ss\\:fffffff}";
+
         private HttpMessageParts _verbosity;
         
         /// <summary>
@@ -87,7 +100,7 @@ namespace HttpTracer
                 
                 if (!response.IsSuccessStatusCode) await LogHttpErrorRequest(request);
                 
-                await LogHttpResponse(response, stopwatch.ElapsedMilliseconds).ConfigureAwait(false);
+                await LogHttpResponse(response, stopwatch.Elapsed).ConfigureAwait(false);
                 return response;
             }
             catch (Exception ex)
@@ -143,7 +156,7 @@ namespace HttpTracer
                 _logger.Log(sb.ToString());
         }
 
-        protected virtual async Task LogHttpResponse(HttpResponseMessage response, long elapsedMilliseconds)
+        protected virtual async Task LogHttpResponse(HttpResponseMessage response, TimeSpan duration)
         {
             var sb = new StringBuilder();
             if (Verbosity.HasFlag(HttpMessageParts.ResponseHeaders) || Verbosity.HasFlag(HttpMessageParts.ResponseBody))
@@ -172,7 +185,7 @@ namespace HttpTracer
 
             if (Verbosity.HasFlag(HttpMessageParts.ResponseHeaders) || Verbosity.HasFlag(HttpMessageParts.ResponseBody))
             {
-                var httpResponsePostfix = $"{elapsedMilliseconds}ms";
+                var httpResponsePostfix = string.Format(DefaultDurationFormat, duration);
                 sb.AppendLine(httpResponsePostfix);
             }
             
