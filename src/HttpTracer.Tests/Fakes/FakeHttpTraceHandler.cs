@@ -17,7 +17,7 @@ namespace HttpTracer.Tests.Fakes
             {
                 await LogHttpRequest(request);
                 var response = new HttpResponseMessage(System.Net.HttpStatusCode.OK) { Content = new StringContent(FakeResponseContent)};
-                await LogHttpResponse(response, 0);
+                await LogHttpResponse(response, TimeSpan.FromMilliseconds(25));
                 return response;
             }
             catch (Exception ex)
