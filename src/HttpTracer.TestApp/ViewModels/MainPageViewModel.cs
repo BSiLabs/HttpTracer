@@ -67,7 +67,7 @@ namespace HttpTracer.TestApp.ViewModels
                 httpClientHandler.CookieContainer.Add(new Cookie("TestCookie1", "One", "", Domain));
                 httpClientHandler.CookieContainer.Add(new Cookie("TestCookie2", "Two", "", Domain));
             
-                client = new HttpClient(new HttpTracerHandler(httpClientHandler, logger, DefaultHttpTracerVerbosity));
+                client = new HttpClient(new HttpTracerHandler(httpClientHandler, logger));
                 client.DefaultRequestHeaders.Add("Authorization", "Bearer ThisIsProbablyNotAValidJwt");
                 client.DefaultRequestHeaders.Add("client-version", "1.0.0");
                 client.DefaultRequestHeaders.Add("custom-header", "Probably not the matrix");
