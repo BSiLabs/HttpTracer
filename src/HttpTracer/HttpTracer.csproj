@@ -38,4 +38,11 @@
     <Compile Include="**\*.shared.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildSDKExtrasTargets)" Condition="Exists('$(MSBuildSDKExtrasTargets)')" />
+
+  <ItemGroup>
+      <!-- internals visible to test class only -->
+      <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+          <_Parameter1>HttpTracer.Tests</_Parameter1>
+      </AssemblyAttribute>
+  </ItemGroup>
 </Project>

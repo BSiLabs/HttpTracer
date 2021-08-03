@@ -89,5 +89,11 @@ namespace HttpTracer
             _rootHandler.Verbosity = verbosity;
             return this;
         }
+
+        public HttpHandlerBuilder SetJsonFormatting(JsonFormatting jsonFormatting)
+        {
+            _rootHandler.JsonFormatting = jsonFormatting;
+            return this;
+        }
     }
 }
