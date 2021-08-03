@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using HttpTracer.Logger;
@@ -16,19 +17,20 @@ namespace HttpTracer.TestApp.ViewModels
     public class MainPageViewModel : ViewModelBase
     {
         private const string Domain = "reqres.in";
+
         private const HttpMessageParts DefaultHttpTracerVerbosity =
             HttpMessageParts.RequestAll | HttpMessageParts.ResponseHeaders;
 
         public ICommand LogToScreenCommand { get; }
 
         public ICommand LogToConsoleCommand { get; }
-        
+
         public ObservableRangeCollection<string> LogEntries { get; } = new ObservableRangeCollection<string>();
 
         public ObservableRangeCollection<User> UserList { get; } = new ObservableRangeCollection<User>();
 
         public MainPageViewModel(INavigationService navigationService)
-            : base (navigationService)
+            : base(navigationService)
         {
             Title = "Main Page";
             LogToConsoleCommand = new Command(async () => { await LogToConsole(); });
@@ -66,8 +68,11 @@ namespace HttpTracer.TestApp.ViewModels
                 httpClientHandler.UseCookies = true;
                 httpClientHandler.CookieContainer.Add(new Cookie("TestCookie1", "One", "", Domain));
                 httpClientHandler.CookieContainer.Add(new Cookie("TestCookie2", "Two", "", Domain));
-            
-                client = new HttpClient(new HttpTracerHandler(httpClientHandler, logger, DefaultHttpTracerVerbosity));
+
+                client = new HttpClient(new HttpTracerHandler(httpClientHandler, logger, DefaultHttpTracerVerbosity)
+                {
+                    JsonFormatting = JsonFormatting.IndentAll
+                });
                 client.DefaultRequestHeaders.Add("Authorization", "Bearer ThisIsProbablyNotAValidJwt");
                 client.DefaultRequestHeaders.Add("client-version", "1.0.0");
                 client.DefaultRequestHeaders.Add("custom-header", "Probably not the matrix");
@@ -76,6 +81,7 @@ namespace HttpTracer.TestApp.ViewModels
             {
                 Console.WriteLine(ex);
             }
+
             return client;
         }
 
@@ -84,7 +90,7 @@ namespace HttpTracer.TestApp.ViewModels
             var client = GetHttpClient(logger);
             try
             {
-                var content = new StringContent(@"{""name"": ""morpheus"", ""job"": ""leader""}");
+                var content = new StringContent(@"{""name"": ""morpheus"",""job"": ""leader""}", Encoding.Default, "application/json");
                 await client.PostAsync($"https://{Domain}/api/users", content);
             }
             catch (Exception ex)

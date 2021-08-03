@@ -6,19 +6,24 @@ namespace HttpTracer
     public enum HttpMessageParts
     {
         Unspecified = 0,
-        None = 1,
+        None = 1 << 0,
+        RequestBody = 1 << 1,
+        RequestHeaders = 1 << 2,
+        ResponseBody = 1 << 3,
+        ResponseHeaders = 1 << 4,
+        RequestCookies = 1 << 5,
 
-        RequestBody = 2,
-        RequestHeaders = 4,
-        RequestCookies = 32,
-        
         RequestAll = RequestBody | RequestHeaders | RequestCookies,
-
-        ResponseBody = 8,
-        ResponseHeaders = 16,
-
         ResponseAll = ResponseBody | ResponseHeaders,
-
         All = ResponseAll | RequestAll
+    }
+
+    [Flags]
+    public enum JsonFormatting
+    {
+        None = 0,
+        IndentRequest = 1 << 0,
+        IndentResponse = 1 << 1,
+        IndentAll = IndentRequest | IndentResponse
     }
 }

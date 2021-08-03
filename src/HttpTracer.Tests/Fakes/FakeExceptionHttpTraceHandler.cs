@@ -19,7 +19,7 @@ namespace HttpTracer.Tests.Fakes
             }
             catch (Exception ex)
             {
-                LogHttpException(request, ex);
+                LogHttpException(request.Method, request.RequestUri, ex);
                 throw;
             }
         }
