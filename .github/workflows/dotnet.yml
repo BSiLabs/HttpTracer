@@ -20,6 +20,6 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore src/HttpTracer.sln
     - name: Build
-      run: dotnet build --no-restore src/HttpTracer.sln
+      run: dotnet build --no-restore src/HttpTracer/HttpTracer.csproj
     - name: Test
-      run: dotnet test --no-build --verbosity normal src/HttpTracer.sln
+      run: dotnet test --verbosity normal src/HttpTracer.Tests/HttpTracer.Tests.csproj
